@@ -38,6 +38,9 @@ if ($in{'multi'}) {
 			}
 		print "</script>\n";
 		print "<title>$text{'users_title1'}</title>\n";
+## awie start
+        print '<script>window.resizeTo(600,400);</script>';
+## awie end
 		print "<frameset cols='50%,50%'>\n";
 		print "<frame src=\"user_chooser.cgi?frame=1&multi=1\">\n";
 		print "<frameset rows='*,50' frameborder=no>\n";
@@ -58,23 +61,29 @@ if ($in{'multi'}) {
 		print "return false;\n";
 		print "}\n";
 		print "</script>\n";
-        print '<script>window.resizeTo(800,600);</script>';
+## awie start
         print "<div class='searchsort'><b>".$text{'left_search'}."</b>&nbsp;";
         print &ui_textbox("search", undef, 20, 0, undef,"id='xsort'");
         print '<hr></div>';
+## awie end
 		print "<font size=+1>$text{'users_all'}</font>\n";
 		print "<table width=100%>\n";
-        $cnt = 0;
+## awie start
+        my $scnt = 0;
+## awie end
 		foreach $u (&get_users_list()) {
-			if ($in{'user'} eq $u->[0]) { print "<tr class='row' $cb>\n"; }
-			else { print "<tr class='row'>\n"; }
+			if ($in{'user'} eq $u->[0]) { print "<tr class='xrow' $cb>\n"; }
+			else { print "<tr class='xrow'>\n"; }
 			$u->[6] =~ s/'/&#39;/g;
 			print "<td width=20%><a href=\"\" onClick='return adduser(\"$u->[0]\", \"$u->[6]\")'>$u->[0]</a></td>\n";
 			print "<td>$u->[6]</td> </tr>\n";
-            $cnt++;
+## awie start
+            $scnt++;
+## awie end
 			}
 		print "</table>\n";
-    if ( $cnt >= 10 ) {
+## awie start
+    if ( $scnt >= 10 ) {
         print '<script>jQuery("div.searchsort").show();</script>';
     }
 print <<_EOF;
@@ -83,7 +92,7 @@ jQuery(document).ready(function() {
     jQuery("input#xsort").keyup(function(e) {
         var val = jQuery(this).val();
         if ( val !== '' ) {
-            jQuery("tr[class*=row]").hide();
+            jQuery("tr[class=xrow]").hide();
             jQuery("a").each(function() {
                 var t = jQuery(this).text().toLowerCase();
                 if ( t.match(val.toLowerCase()) ) {
@@ -91,12 +100,13 @@ jQuery(document).ready(function() {
                 }
             });
         } else {
-            jQuery("tr[class*=row]").show();
+            jQuery("tr[class=xrow]").show();
         }
     });
 });
 </script>
 _EOF
+## awie end
 		&popup_footer();
 		}
 	elsif ($in{'frame'} == 2) {
@@ -167,21 +177,28 @@ else {
 	print "return false;\n";
 	print "}\n";
 	print "</script>\n";
+## awie start
     print '<script>window.resizeTo(300,300);</script>';
     print "<div class='searchsort'><b>".$text{'left_search'}."</b>&nbsp;";
     print &ui_textbox("search", undef, 20, 0, undef,"id='xsort'");
     print '<hr></div>';
+## awie end
 	print "<table width=100%>\n";
-    $cnt = 0;
+## awie start
+    my $scnt = 0;
+## awie end
 	foreach $u (&get_users_list()) {
-		if ($in{'user'} eq $u->[0]) { print "<tr class='row' $cb>\n"; }
-		else { print "<tr class='row'>\n"; }
+		if ($in{'user'} eq $u->[0]) { print "<tr class='xrow' $cb>\n"; }
+		else { print "<tr class='xrow'>\n"; }
 		print "<td width=20%><a href=\"\" onClick='return select(\"$u->[0]\")'>$u->[0]</a></td>\n";
 		print "<td>$u->[6]</td> </tr>\n";
-        $cnt++;
+## awie start
+        $scnt++;
+## awie end
 		}
 	print "</table>\n";
-    if ( $cnt >= 10 ) {
+## awie start
+    if ( $scnt >= 10 ) {
         print '<script>jQuery("div.searchsort").show();</script>';
     }
 print <<_EOF;
@@ -190,7 +207,7 @@ jQuery(document).ready(function() {
     jQuery("input#xsort").keyup(function(e) {
         var val = jQuery(this).val();
         if ( val !== '' ) {
-            jQuery("tr[class*=row]").hide();
+            jQuery("tr[class=xrow]").hide();
             jQuery("a").each(function() {
                 var t = jQuery(this).text().toLowerCase();
                 if ( t.match(val.toLowerCase()) ) {
@@ -198,12 +215,13 @@ jQuery(document).ready(function() {
                 }
             });
         } else {
-            jQuery("tr[class*=row]").show();
+            jQuery("tr[class=xrow]").show();
         }
     });
 });
 </script>
 _EOF
+## awie end
 	&popup_footer();
 	}
 

@@ -19,15 +19,15 @@ foreach $o (split(/\0/, $in{'open'})) {
 	$open{$o} = 1;
 	}
 
-$prehead = defined(&WebminCore::theme_prehead) ?
-		&capture_function_output(\&WebminCore::theme_prehead) : "";
+#$prehead = defined(&WebminCore::theme_prehead) ?
+#		&capture_function_output(\&WebminCore::theme_prehead) : "";
 #&popup_header(undef, $prehead);
 &popup_header(undef, undef);
 print "<center>\n";
 
 # Webmin logo
 if (&get_product_name() eq 'webmin') {
-	print "<a href=http://www.webmin.com/ target=_new><img src=images/webmin-blue.png border=0></a><p>\n";
+	print "<a href=http://www.webmin.com/ target=_new><img src=images/webmin-blue.png border=0></a><p/><hr/>\n";
 	}
 
 if ($level == 0) {

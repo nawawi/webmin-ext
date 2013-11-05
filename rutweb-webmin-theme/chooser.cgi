@@ -114,8 +114,9 @@ if ($in{'frame'} == 0) {
     } elsif ($in{'type'} == 1) {
         print "<title>$text{'chooser_title2'}</title>\n";
     }
-    # awie 05112013
+## awie start
     print '<script>window.resizeTo(800,600);</script>';
+## awie end
 	print "<frameset rows='*,50'>\n";
 	print "<frame marginwidth=5 marginheight=5 name=topframe ",
             "src=\"chooser.cgi?frame=1&file=".$ufile.
@@ -164,33 +165,19 @@ location = "chooser.cgi?frame=1&chroot=$uchroot&type=$utype&file="+p;
 }
 </script>
 
-<script type="text/javascript">
-jQuery(document).ready(function() {
-    jQuery("input#xsort").keyup(function(e) {
-        var val = jQuery(this).val();
-        if ( val !== '' ) {
-            jQuery("tr[class*=row]").hide();
-            jQuery("a").each(function() {
-                var t = jQuery(this).text().toLowerCase();
-                if ( t.match(val.toLowerCase()) ) {
-                    jQuery(this).parent().parent().show();
-                }
-            });
-        } else {
-            jQuery("tr[class*=row]").show();
-        }
-    });
-});
-</script>
 EOF
+## awie start
     print "<div class='searchsort'><b>".$text{'left_search'}."</b>&nbsp;";
     print &ui_textbox("search", undef, 50, 0, undef,"id='xsort'");
     print '<hr></div>';
+## awie end
 	print "<b>",&text('chooser_dir', &html_escape($dir)),"</b>\n";
 	opendir(DIR, $in{'chroot'}.$dir) ||
 		&popup_error(&text('chooser_eopen', "$!"));
 	print &ui_columns_start(undef, 100);
-    $cnt = 0;
+## awie start
+    my $scnt = 0;
+## awie end
 	foreach $f (sort { $a cmp $b } readdir(DIR)) {
 		$path = "$in{'chroot'}$dir$f";
 		if ($f eq ".") { next; }
@@ -220,13 +207,37 @@ EOF
 			$tm[3], $text{'smonth_'.($tm[4]+1)}, $tm[5]+1900);
 		push(@cols, sprintf "<tt>%.2d:%.2d</tt>", $tm[2], $tm[1]);
 		print &ui_columns_row(\@cols);
-        $cnt++;
+## awie start
+        $scnt++;
+## awie end
 		}
 	closedir(DIR);
 	print &ui_columns_end();
-    if ( $cnt >= 10 ) {
+## awie start
+    if ( $scnt >= 10 ) {
         print '<script>jQuery("div.searchsort").show();</script>';
     }
+print <<_EOF;
+<script type="text/javascript">
+jQuery(document).ready(function() {
+    jQuery("input#xsort").keyup(function(e) {
+        var val = jQuery(this).val();
+        if ( val !== '' ) {
+            jQuery("tr[class*=row]").hide();
+            jQuery("a").each(function() {
+                var t = jQuery(this).text().toLowerCase();
+                if ( t.match(val.toLowerCase()) ) {
+                    jQuery(this).parent().parent().show();
+                }
+            });
+        } else {
+            jQuery("tr[class*=row]").show();
+        }
+    });
+});
+</script>
+_EOF
+## awie end
 	&popup_footer();
 	}
 elsif ($in{'frame'} == 2) {
