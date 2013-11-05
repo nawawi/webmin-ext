@@ -229,6 +229,11 @@ sub theme_prehead {
         print "</style>";
         print "<![endif]-->\n";
     }
+
+    if ( $ENV{SCRIPT_NAME} =~ m'^/left\.cgi' ) {
+        print "<link rel='stylesheet' type='text/css' href='$gconfig{'webprefix'}/unauthenticated/left.css' />\n";
+    }
+
     if ( $ENV{SCRIPT_NAME} =~ m'^/right\.cgi' ) {
         print "<link rel='stylesheet' type='text/css' href='$gconfig{'webprefix'}/unauthenticated/right.css' />\n";
     }
@@ -389,7 +394,7 @@ sub theme_ui_tabs_start {
             $rv .= "<td valign=top class='tabSelected'>".
                    "<img src=$imgdir/lc2.gif alt=\"\"></td>";
             $rv .= "<td class='tabSelected' nowrap>".
-                   "&nbsp;<b>$t->[1]</b>&nbsp;</td>";
+                   "&nbsp;&nbsp;<b>$t->[1]</b>&nbsp;&nbsp;</td>";
             $rv .= "<td valign=top class='tabSelected'>".
                    "<img src=$imgdir/rc2.gif alt=\"\"></td>";
         } else {
@@ -397,9 +402,9 @@ sub theme_ui_tabs_start {
             $rv .= "<td valign=top class='tabUnselected'>".
                    "<img src=$imgdir/lc1.gif alt=\"\"></td>";
             $rv .= "<td class='tabUnselected' nowrap>".
-                   "&nbsp;<a href='$t->[2]' ".
+                   "&nbsp;&nbsp;<a href='$t->[2]' ".
                    "onClick='return select_tab(\"$name\", \"$t->[0]\")'>".
-                   "$t->[1]</a>&nbsp;</td>";
+                   "$t->[1]</a>&nbsp;&nbsp;</td>";
             $rv .= "<td valign=top class='tabUnselected'>".
                    "<img src=$imgdir/rc1.gif ".
                    "alt=\"\"></td>";
@@ -826,7 +831,7 @@ for(var i=0; i<tabnames.length; i++) {
 		       '<td valign=top class=\\'tabSelected\\'>'+
 		       '<img src=$imgdir/lc2.gif alt=""></td>'+
 		       '<td class=\\'tabSelected\\' nowrap>'+
-		       '&nbsp;<b>'+title+'</b>&nbsp;</td>'+
+		       '&nbsp;&nbsp;<b>'+title+'</b>&nbsp;&nbsp;</td>'+
 	               '<td valign=top class=\\'tabSelected\\'>'+
 		       '<img src=$imgdir/rc2.gif alt=""></td>'+
 		       '</tr></table>';
@@ -838,8 +843,8 @@ for(var i=0; i<tabnames.length; i++) {
 		       '<td valign=top class=\\'tabUnselected\\'>'+
 		       '<img src=$imgdir/lc1.gif alt=""></td>'+
 		       '<td class=\\'tabUnselected\\' nowrap>'+
-                       '&nbsp;<a href=\\'\\' onClick=\\'return select_tab("'+
-		       name+'", "'+tabnames[i]+'")\\'>'+title+'</a>&nbsp;</td>'+
+                       '&nbsp;&nbsp;<a href=\\'\\' onClick=\\'return select_tab("'+
+		       name+'", "'+tabnames[i]+'")\\'>'+title+'</a>&nbsp;&nbsp;</td>'+
 		       '<td valign=top class=\\'tabUnselected\\'>'+
     		       '<img src=$imgdir/rc1.gif alt=""></td>'+
 		       '</tr></table>';
