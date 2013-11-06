@@ -167,8 +167,8 @@ location = "chooser.cgi?frame=1&chroot=$uchroot&type=$utype&file="+p;
 
 EOF
 ## awie start
-    print "<div class='searchsort'><b>".$text{'left_search'}."</b>&nbsp;";
-    print &ui_textbox("search", undef, 50, 0, undef,"id='xsort'");
+    print "<div class='searchsort'>";
+    print &ui_textbox("search", undef, 50, 0, undef,"id='xsort' style='width:100%;' placeholder='$text{'lookup_sort'}'");
     print '<hr></div>';
 ## awie end
 	print "<b>",&text('chooser_dir', &html_escape($dir)),"</b>\n";

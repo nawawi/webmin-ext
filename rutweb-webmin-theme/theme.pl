@@ -16,6 +16,59 @@ $main::basic_virtualmin_menu = 1;
 $main::nocreate_virtualmin_menu = 1;
 $main::nosingledomain_virtualmin_mode = 1;
 
+# functions
+sub nw_script_exists {
+    my ($file) = @_;
+    if ( -f "$root_directory/$current_theme/unauthenticated/$file" ) {
+        return 1;
+    }
+    return 0;
+}
+sub nw_js_open {
+    print "<script type='text/javascript'>";
+}
+sub nw_js_close {
+    print "</script>\n";
+}
+sub nw_css_open {
+    print "<style type='text/css'>";
+}
+sub nw_css_close {
+    print "</style>\n";
+}
+sub nw_js_src {
+    my ($file) = @_;
+    my @files = split(/ /, $file);
+    my $fs;
+    foreach $fs (@files) {
+        print "<script type='text/javascript' src='$gconfig{'webprefix'}/unauthenticated/$fs'></script>\n" if ( nw_script_exists($fs) );
+    }
+}
+sub nw_css_src {
+    my ($file) = @_;
+    my @files = split(/ /, $file);
+    my $fs;
+    foreach $fs (@files) {
+        print "<link rel='stylesheet' type='text/css' href='$gconfig{'webprefix'}/unauthenticated/$fs' />\n" if ( nw_script_exists($fs) );
+    }
+}
+
+sub nw_scripts {
+    my ($type) = @_;
+    if ( $ENV{SCRIPT_NAME} ) {
+        $script = $ENV{SCRIPT_NAME};
+        $script =~ s/^\///g;
+        $script =~ s/\/$//g;
+        $script =~ s/\.cgi$//g;
+        $script =~ s/\//_/g;
+        $script =~ s/\_index$//g;
+
+        &nw_css_src("$script.css") if ( $type eq "css" );
+        &nw_js_src("$script.js") if ( $type eq "js" );
+
+    }
+}
+
 # Global state for wrapper
 # if 0, wrapper isn't on, add one and open it, if 1 close it, if 2+, subtract
 # but don't close
@@ -220,8 +273,9 @@ sub theme_prebody {
 }
 
 sub theme_prehead {
-    print "<link rel='stylesheet' type='text/css' href='$gconfig{'webprefix'}/unauthenticated/gray-reset-fonts-grids-base.css' />\n";
-    print "<link rel='stylesheet' type='text/css' href='$gconfig{'webprefix'}/unauthenticated/gray-virtual-server-style.css' />\n";
+    #print "<!-- $ENV{SCRIPT_NAME} -->\n";
+    &nw_css_src("reset-fonts-base.css style.css");
+
     if ($ENV{'HTTP_USER_AGENT'} =~ /msie/i) {
         print "<!--[if IE]>";
         print "<style type=\"text/css\">";
@@ -230,28 +284,19 @@ sub theme_prehead {
         print "<![endif]-->\n";
     }
 
-    if ( $ENV{SCRIPT_NAME} =~ m'^/left\.cgi' ) {
-        print "<link rel='stylesheet' type='text/css' href='$gconfig{'webprefix'}/unauthenticated/left.css' />\n";
-    }
+    &nw_scripts("css");
 
-    if ( $ENV{SCRIPT_NAME} =~ m'^/right\.cgi' ) {
-        print "<link rel='stylesheet' type='text/css' href='$gconfig{'webprefix'}/unauthenticated/right.css' />\n";
-    }
-
-    if ( $ENV{SCRIPT_NAME} =~ m'^/session_login\.cgi' ) {
-        print "<link rel='stylesheet' type='text/css' href='$gconfig{'webprefix'}/unauthenticated/session_login.css' />\n";
-    }
-
-    print "<script type='text/javascript'>";
-    print "var rowsel = new Array();";
-    print "</script>\n";
-    print "<script type='text/javascript' src='$gconfig{'webprefix'}/unauthenticated/sorttable.js'></script>\n";
-    print "<script type='text/javascript' src='$gconfig{'webprefix'}/unauthenticated/jquery.min.js'></script>\n";
     if ($ENV{'HTTP_USER_AGENT'} =~ /Chrome/) {
-        print "<style type='text/css'>";
-	    print "textarea,pre { font-size:120%; }";
-	    print "</style>\n";
+        &nw_css_open();
+	    print "textarea/*,pre*/ { font-size:120%; }";
+        &nw_css_close();
     }
+
+    &nw_js_open();
+    print "var rowsel = new Array();";
+    &nw_js_close();
+    &nw_js_src("sorttable.js jquery.js placeholder.js placeholder_add.js");
+    &nw_scripts("js");
 }
 
 sub theme_popup_prehead {
@@ -289,8 +334,8 @@ sub theme_ui_table_start {
         }
         $rv .= "</tr></thead>\n";
     }
-    $rv .= "<tbody> <tr class='ui_table_body'> <td colspan=$colspan>".
-            "<table width=100%>\n";
+    $rv .= "<tbody> <tr class='ui_table_body'> <td colspan='$colspan'>".
+            "<table width='100%'>\n";
     $main::ui_table_cols = $cols || 4;
     $main::ui_table_pos = 0;
     $main::ui_table_default_tds = $tds;
@@ -1012,48 +1057,6 @@ sub theme_ui_multi_select {
     $rv .= "</tr></table>\n";
     $rv .= &ui_hidden($name, join("\n", map { $_->[0] } @$values));
     return $rv;
-}
-
-=yui
-
-Functions for generating YUI CSS grids markup.
-
-=cut
-
-# ui_yui_grid_start(id, type)
-# Return a yui grid opening div.
-# Available types are:
-# g - 1/2,1/2
-# gb - 1/3, 1/3, 1/3
-# gc - 2/3, 1/3
-# gd - 1/3, 2/3
-# ge - 3/4, 1/4
-# gf - 1/4, 3/4
-sub theme_ui_yui_grid_start {
-	my ($id, $type) = @_;
-	return "<div id='grid_$id' class='yui-$type'>\n";
-}
-
-sub theme_ui_yui_grid_end {
-	my ($id) = @_;
-	return "</div> <!-- grid_$id -->\n";
-}
-
-# ui_yui_grid_section_start(id, first?)
-# Return a yui grid markup section opening div.
-sub theme_ui_yui_grid_section_start {
-	my ($id, $first) = @_;
-	if ($first) { return "<div id='grid_$id' class='yui-u first'>\n"; }
-	else { return "<div id='grid_$id' class='yui-u'>\n"; }
-}
-sub theme_ui_yui_grid_section_end {
-	my ($id) = @_;
-	return "</div> <!-- grid_$id -->\n";
-}
-
-## rutweb
-sub _sbox() {
-    print "TEST";
 }
 
 1;

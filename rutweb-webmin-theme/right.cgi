@@ -27,8 +27,10 @@ print "<center>\n";
 
 # Webmin logo
 if (&get_product_name() eq 'webmin') {
-	print "<a href=http://www.webmin.com/ target=_new><img src=images/webmin-blue.png border=0></a><p/><hr/>\n";
-	}
+    print "<a href=http://www.webmin.com/ target=_new>";
+    print "<img src='$gconfig{'webprefix'}/images/webmin-blue.png' border=0 width='320' height='79'>";
+    print "</a><p/><hr/>";
+}
 
 if ($level == 0) {
 	# Show general system information

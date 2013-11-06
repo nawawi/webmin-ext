@@ -4,7 +4,6 @@
 
 BEGIN { push(@INC, ".."); };
 use WebminCore;
-
 $pragma_no_cache = 1;
 #$ENV{'MINISERV_INTERNAL'} || die "Can only be called by miniserv.pl";
 &init_config();
@@ -47,30 +46,33 @@ if ($tconfig{'inframe'}) {
 print "<center>\n";
 # Webmin logo
 if (&get_product_name() eq 'webmin') {
-	print "<a href=http://www.webmin.com/ target=_new><img src=images/webmin-blue.png border=0></a><p/><hr/>\n";
-	}
+    print "<a href=http://www.webmin.com/ target=_new>";
+    print "<img src='$gconfig{'webprefix'}/images/webmin-blue.png' border=0 width='320' height='79'>";
+    print "</a><p/><hr/>";
+}
+
+my $stext = "";
 
 if (defined($in{'failed'})) {
-	if ($in{'twofactor_msg'}) {
-		print "<h3>",&text('session_twofailed',
-			&html_escape($in{'twofactor_msg'})),"</h3><p></p>\n";
-		}
-	else {
-		print "<h3>$text{'session_failed'}</h3><p></p>\n";
-		}
-	}
-elsif ($in{'logout'}) {
-	print "<h3>$text{'session_logout'}</h3><p></p>\n";
-	}
-elsif ($in{'timed_out'}) {
-	print "<h3>",&text('session_timed_out', int($in{'timed_out'}/60)),"</h3><p></p>\n";
-	}
-print "$text{'session_prefix'}\n";
+    if ($in{'twofactor_msg'}) {
+        $stext = "<h3>",&text('session_twofailed',
+            &html_escape($in{'twofactor_msg'})),"</h3><p></p>\n";
+    } else {
+        $stext = "<h3>$text{'session_failed'}</h3><p></p>\n";
+    }
+} elsif ($in{'logout'}) {
+	$stext = "<h3>$text{'session_logout'}</h3><p></p>\n";
+} elsif ($in{'timed_out'}) {
+    $stext = "<h3>",&text('session_timed_out', int($in{'timed_out'}/60)),"</h3><p></p>\n";
+}
+
+if ($text{'session_prefix'}) {
+    $stext .="A $text{'session_prefix'}\n";
+}
 
 print &ui_form_start("$gconfig{'webprefix'}/session_login.cgi", "post");
 print &ui_hidden("page", $in{'page'});
-print &ui_table_start($text{'session_header'},
-		      "width=40% class='loginform'", 2);
+print &ui_table_start(undef, "width='450' class='loginform'", 2);
 
 # Login message
 if ($gconfig{'realname'}) {
@@ -81,37 +83,46 @@ else {
 	$host =~ s/:\d+//g;
 	$host = &html_escape($host);
 	}
+
+if ( $stext ne '' ) {
+    print &ui_table_row(undef,
+          $stext, 1, [ "align=center", "align=center" ]);
+}
+
 print &ui_table_row(undef,
       &text($gconfig{'nohostname'} ? 'session_mesg2' : 'session_mesg',
-	    "<tt>$host</tt>"), 2, [ "align=center", "align=center" ]);
+	    "<tt>$host</tt>"), 1, [ "align=center", "align=center" ]);
 
 # Username and password
-$tags = $gconfig{'noremember'} ? "autocomplete=off" : "";
-print &ui_table_row($text{'session_user'},
-	&ui_textbox("user", $in{'failed'}, 20, 0, undef, $tags));
-print &ui_table_row($text{'session_pass'},
-	&ui_password("pass", undef, 20, 0, undef, $tags));
+$tags = $gconfig{'noremember'} ? "autocomplete=off " : "";
+$plu = "placeholder='$text{'session_user'}'";
+print &ui_table_row(undef,
+        &ui_textbox("user", $in{'failed'}, 20, 0, undef, $tags.$plu));
+
+$plu = "placeholder='$text{'session_pass'}'";
+print &ui_table_row(undef,
+        &ui_password("pass", undef, 20, 0, undef, $tags.$plu));
 
 # Two-factor token, for users that have it
 if ($miniserv{'twofactor_provider'}) {
-	print &ui_table_row($text{'session_twofactor'},
-		&ui_textbox("twofactor", undef, 20, 0, undef,
-			    "autocomplete=off"));
-	}
+    print &ui_table_row(undef,
+        &ui_textbox("twofactor", undef, 20, 0, undef,
+            "autocomplete='off' placeholder='$text{'session_twofactor'}'"));
+}
 
 # Remember session cookie?
 if (!$gconfig{'noremember'}) {
-	print &ui_table_row(" ",
-		&ui_checkbox("save", 1, $text{'session_save'}, 0));
-	}
+    print &ui_table_row(undef,
+        &ui_checkbox("save", 1, $text{'session_save'}, 0));
+}
 
 print &ui_table_end(),"\n";
 print &ui_submit($text{'session_login'});
 #print &ui_reset($text{'session_clear'});
 print &ui_form_end();
-print "</center>\n";
 
-print "$text{'session_postfix'}\n";
+
+print "</center>\n";
 
 # Output frame-detection Javascript, if theme uses frames
 if ($tconfig{'inframe'}) {

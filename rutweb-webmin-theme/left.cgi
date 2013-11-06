@@ -13,44 +13,6 @@ use WebminCore;
 @modules = map { @{$_->{'modules'}} } @cats;
 
 &popup_header();
-print <<EOF;
-<script>
-function toggleview (id1,id2) {
-		var obj1 = document.getElementById(id1);
-		var obj2 = document.getElementById(id2);
-		(obj1.className=="itemshown") ? obj1.className="itemhidden" : obj1.className="itemshown"; 
-		(obj1.className=="itemshown") ? obj2.innerHTML="<img border='0' src='images/gray-open.gif' alt='[&ndash;]'>" : obj2.innerHTML="<img border='0' src='images/gray-closed.gif' alt='[+]'>"; 
-	}
-
-// Show the logs for the current module in the right
-function show_logs() {
-  var url = ''+window.parent.frames[1].location;
-  var sl1 = url.indexOf('//');
-  var mod = '';
-  if (sl1 > 0) {
-    var sl2 = url.indexOf('/', sl1+2);
-    if (sl2 > 0) {
-      var sl3 = url.indexOf('/', sl2+1);
-      if (sl3 > 0) {
-        mod = url.substring(sl2+1, sl3);
-      } else {
-        mod = url.substring(sl2+1);
-      }
-    }
-  }
-if (mod && mod.indexOf('.cgi') <= 0) {
-  // Show one module's logs
-  window.parent.frames[1].location = 'webminlog/search.cgi?tall=4&uall=1&fall=1&mall=0&module='+mod;
-  }
-else {
-  // Show all logs
-  window.parent.frames[1].location = 'webminlog/search.cgi?tall=4&uall=1&fall=1&mall=0&mall=1'
-  }
-}
-</script>
-</head>
-<body>
-EOF
 
 # Show login
 print "<div class='wrapper'>\n";
@@ -59,54 +21,50 @@ print &text('left_login', $remote_user),"<br>\n";
 print "<hr>\n";
 
 if ($gconfig{"notabs_${base_remote_user}"} == 2 ||
-    $gconfig{"notabs_${base_remote_user}"} == 0 && $gconfig{'notabs'} ||
-    @modules <= 1) {
-	# Show all modules in one list
-	foreach $minfo (@modules) {
-		$target = $minfo->{'noframe'} ? "_top" : "right";
-		print "<a target=$target href=$minfo->{'dir'}/>$minfo->{'desc'}</a><br>\n";
-		}
-	}
-else {
-	# Show all modules under categories
-	foreach $c (@cats) {
-		# Show category opener, plus modules under it
-		&print_category_opener(
-			$c->{'code'},
-			$in{$c->{'code'}} ? 1 : 0,
-			$c->{'unused'} ?
-				"<font color=#888888>$c->{'desc'}</font>" :
-				$c->{'desc'});
-		$cls = $in{$c->{'code'}} ? "itemshown" : "itemhidden";
-		print "<div class='$cls' id='$c->{'code'}'>";
-		foreach my $minfo (@{$c->{'modules'}}) {
-			&print_category_link("$minfo->{'dir'}/",
-					     $minfo->{'desc'},
-					     undef,
-					     undef,
-					     $minfo->{'noframe'} ? "_top" : "",
-					);
-			}
-		print "</div>\n";
-		}
-	}
+    $gconfig{"notabs_${base_remote_user}"} == 0 && $gconfig{'notabs'} || @modules <= 1) {
+    # Show all modules in one list
+    foreach $minfo (@modules) {
+        $target = $minfo->{'noframe'} ? "_top" : "right";
+        print "<a target=$target href=$minfo->{'dir'}/>$minfo->{'desc'}</a><br>\n";
+    }
+} else {
+    # Show all modules under categories
+    foreach $c (@cats) {
+        # Show category opener, plus modules under it
+        &print_category_opener(
+            $c->{'code'},
+            $in{$c->{'code'}} ? 1 : 0,
+            $c->{'unused'} ? "<font color=#888888>$c->{'desc'}</font>" : $c->{'desc'}
+        );
+        $cls = $in{$c->{'code'}} ? "itemshown" : "itemhidden";
+        print "<div class='$cls' id='$c->{'code'}'>";
+        foreach my $minfo (@{$c->{'modules'}}) {
+            &print_category_link("$minfo->{'dir'}/",
+                $minfo->{'desc'},
+                undef,
+                undef,
+                $minfo->{'noframe'} ? "_top" : "",
+            );
+        }
+        print "</div>\n";
+    }
+}
 
 # Show module/help search form
-if (-r "$root_directory/webmin_search.cgi" &&
-    $gaccess{'webminsearch'}) {
+if ( -r "$root_directory/webmin_search.cgi" && $gaccess{'webminsearch'} ) {
     print "<hr/>";
-	print "<form action=webmin_search.cgi target=right>\n";
-	print $text{'left_search'},"&nbsp;";
-	print &ui_textbox("search", undef, 20);
-	}
+    print "<form action=webmin_search.cgi target=right>\n";
+    #print $text{'left_search'},"&nbsp;";
+    print &ui_textbox("search", undef, 20, undef, undef, "placeholder='$text{'search'}' style='width:100%;'");
+}
 
 print "<div class='leftlink'><hr></div>\n";
 
 # Show current module's log search, if logging
 if ($gconfig{'log'} && &foreign_available("webminlog")) {
-	print "<div class='linkwithicon'><img src='images/logs.png'>\n";
-	print "<div class='aftericon'><a target=right href='webminlog/' onClick='show_logs(); return false;'>$text{'left_logs'}</a></div></div>\n";
-	}
+    print "<div class='linkwithicon'><img src='images/logs.png'>\n";
+    print "<div class='aftericon'><a target=right href='webminlog/' onClick='show_logs(); return false;'>$text{'left_logs'}</a></div></div>\n";
+}
 
 # Show info link
 print "<div class='linkwithicon'><img src='images/gohome.png'>\n";
@@ -115,17 +73,17 @@ print "<div class='aftericon'><a target=right href='right.cgi?open=system&open=s
 # Show feedback link, but only if a custom email is set
 %gaccess = &get_module_acl(undef, "");
 if (&get_product_name() eq 'webmin' &&		# For Webmin
-      !$ENV{'ANONYMOUS_USER'} &&
-      $gconfig{'nofeedbackcc'} != 2 &&
-      $gaccess{'feedback'} &&
-      $gconfig{'feedback_to'} ||
-    &get_product_name() eq 'usermin' &&		# For Usermin
-      !$ENV{'ANONYMOUS_USER'} &&
-      $gconfig{'feedback'}
-    ) {
-	print "<div class='linkwithicon'><img src=images/mail-small.gif>\n";
-	print "<div class='aftericon'><a target=right href='feedback_form.cgi'>$text{'left_feedback'}</a></div></div>\n";
-	}
+        !$ENV{'ANONYMOUS_USER'} &&
+        $gconfig{'nofeedbackcc'} != 2 &&
+        $gaccess{'feedback'} &&
+        $gconfig{'feedback_to'} ||
+        &get_product_name() eq 'usermin' &&		# For Usermin
+        !$ENV{'ANONYMOUS_USER'} &&
+        $gconfig{'feedback'}
+) {
+    print "<div class='linkwithicon'><img src=images/mail-small.gif>\n";
+    print "<div class='aftericon'><a target=right href='feedback_form.cgi'>$text{'left_feedback'}</a></div></div>\n";
+}
 
 # Show refesh modules link, for master admin
 if (&foreign_available("webmin")) {

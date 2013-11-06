@@ -11,8 +11,8 @@ if (!ref($mods)) {
 	print "<b>",&text('third_failed', $mods),"</b><p>\n";
 	}
 else {
-    print "<div class='searchsort'><b>".$text{'left_search'}."</b>&nbsp;";
-    print &ui_textbox("search", undef, 50, 0, undef,"id='xsort'");
+    print "<div class='searchsort'>";
+    print &ui_textbox("search", undef, 50, 0, undef,"id='xsort' style='width:100%;' placeholder='$text{'lookup_sort'}'");
     print '<hr></div>';
 	print "<b>$text{'third_header'}</b><br>\n";
 	print "<script>\n";
@@ -24,18 +24,18 @@ else {
 	print "}\n";
 	print "</script>\n";
 	@table = ( );
-    $cnt = 0;
+    $scnt = 0;
 	foreach $m (@$mods) {
 		push(@table, [
 		 "<a href='' onClick='return select(\"$m->[2]\")'>$m->[0]</a>",
 		 $m->[1] eq "NONE" ? "" : &html_escape($m->[1]),
 		 $m->[3],
 		 ]);
-            $cnt++;
+            $scnt++;
 		}
 	print &ui_columns_table(undef, 100, \@table);
 	}
-    if ( $cnt >= 10 ) {
+    if ( $scnt >= 10 ) {
         print '<script>jQuery("div.searchsort").show();</script>';
     }
 print <<_EOF;

@@ -55,8 +55,8 @@ if ($in{'multi'}) {
 		print "}\n";
 		print "</script>\n";
 ## awie start
-        print "<div class='searchsort'><b>".$text{'left_search'}."</b>&nbsp;";
-        print &ui_textbox("search", undef, 20, 0, undef,"id='xsort'");
+        print "<div class='searchsort'>";
+        print &ui_textbox("search", undef, 50, 0, undef,"id='xsort' style='width:100%;' placeholder='$text{'lookup_sort'}'");
         print '<hr></div>';
 ## awie end
 		print "<font size=+1>$text{'users_all'}</font>\n";
@@ -170,8 +170,8 @@ else {
 	print "</script>\n";
 ## awie start
     print '<script>window.resizeTo(300,300);</script>';
-    print "<div class='searchsort'><b>".$text{'left_search'}."</b>&nbsp;";
-    print &ui_textbox("search", undef, 20, 0, undef,"id='xsort'");
+    print "<div class='searchsort'>";
+    print &ui_textbox("search", undef, 50, 0, undef,"id='xsort' style='width:100%;' placeholder='$text{'lookup_sort'}'");
     print '<hr></div>';
 ## awie end
 	print "<table width=100%>\n";

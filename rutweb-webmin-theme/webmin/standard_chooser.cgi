@@ -10,8 +10,8 @@ if (!ref($mods)) {
 	print "<b>",&text('standard_failed', $mods),"</b><p>\n";
 	}
 else {
-    print "<div class='searchsort'><b>".$text{'left_search'}."</b>&nbsp;";
-    print &ui_textbox("search", undef, 50, 0, undef,"id='xsort'");
+    print "<div class='searchsort'>";
+    print &ui_textbox("search", undef, 50, 0, undef,"id='xsort' style='width:100%;' placeholder='$text{'lookup_sort'}'");
     print '<hr></div>';
 	print "<b>$text{'standard_header'}</b><br>\n";
 	if ($mods->[0]->[1] > &get_webmin_version()) {
@@ -26,7 +26,7 @@ else {
 	print "}\n";
 	print "</script>\n";
 	@table = ( );
-    $cnt = 0;
+    $scnt = 0;
 	foreach $m (@$mods) {
 		my $minfo = { 'os_support' => $m->[3] };
 		next if (!&check_os_support($minfo));
@@ -34,11 +34,11 @@ else {
 		 "<a href='' onClick='return select(\"$m->[0]\")'>$m->[0]</a>",
 		 &html_escape($m->[4]),
 		 ]);
-    $cnt++;
+    $scnt++;
 		}
 	print &ui_columns_table(undef, 100, \@table);
 	}
-    if ( $cnt >= 10 ) {
+    if ( $scnt >= 10 ) {
         print '<script>jQuery("div.searchsort").show();</script>';
     }
 print <<_EOF;
