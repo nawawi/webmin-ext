@@ -1,0 +1,10 @@
+# tarball
+*.zip
+*.tar.*
+*.gz
+*.bz2
+*.lzma
+*.tgz
+*.tbz2
+*.wbt.*
+*.wbm.*
