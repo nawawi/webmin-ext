@@ -8,7 +8,7 @@ function toggleview(id1,id2) {
     var obj1 = document.getElementById(id1);
     var obj2 = document.getElementById(id2);
     (obj1.className=="itemshown") ? obj1.className="itemhidden" : obj1.className="itemshown"; 
-    (obj1.className=="itemshown") ? obj2.innerHTML="<img border='0' src='images/gray-open.gif' alt='[&ndash;]'>" : obj2.innerHTML="<img border='0' src='images/gray-closed.gif' alt='[+]'>"; 
+    (obj1.className=="itemshown") ? obj2.innerHTML="<img border='0' src='images/red-open.gif' alt='[&ndash;]'>" : obj2.innerHTML="<img border='0' src='images/red-closed.gif' alt='[+]'>"; 
 };
 
 // Show the logs for the current module in the right

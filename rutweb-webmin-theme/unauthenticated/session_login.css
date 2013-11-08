@@ -1,1 +1,24 @@
-input[type=submit],input[type=reset]{margin-top:5px}input[type=reset]{height:27px;line-height:27px}.ui_form_label{text-align:right;vertical-align:middle}input.ui_submit{font-size:14px;height:30px;line-height:30px;width:450px;background-color:#dedcdc;border:1px solid #cfcccc;background-image:-webkit-gradient(linear,left top,left bottom,from(#dedcdc),to(#f3f3f3));background-image:-webkit-linear-gradient(top,#dedcdc,#f3f3f3);background-image:-moz-linear-gradient(top,#dedcdc,#f3f3f3);background-image:-ms-linear-gradient(top,#dedcdc,#f3f3f3);background-image:-o-linear-gradient(top,#dedcdc,#f3f3f3);background-image:linear-gradient(top,#dedcdc,#f3f3f3)}input.ui_textbox,input.ui_password{width:100%}table.shrinkwrapper{width:450px}.ui_table_body td{padding:4px}
+.ui_form_label {
+    text-align:right;
+    vertical-align:middle;
+}
+
+input.ui_submit {
+    margin-top: 5px;
+    font-size: 14px;
+    height: 30px;
+    line-height: 30px;
+    width: 450px;
+}
+
+input.ui_textbox, input.ui_password {
+    width: 100%;
+}
+
+table.shrinkwrapper {
+    width: 450px;
+}
+
+.ui_table_body td {
+    padding: 4px;
+}

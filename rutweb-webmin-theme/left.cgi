@@ -121,9 +121,9 @@ sub print_category_opener
 {
 local ($c, $status, $label) = @_;
 $label = $c eq "others" ? $text{'left_others'} : $label;
-local $img = $status ? "gray-open.gif" : "gray-closed.gif";
+local $img = $status ? "red-open.gif" : "red-closed.gif";
 
-# Show link to close or open catgory
+# Show link to close or open category
 print "<div class='linkwithicon'>";
 print "<a href=\"javascript:toggleview('$c','toggle$c')\" id='toggle$c'><img border='0' src='images/$img' alt='[+]'></a>\n";
 print "<div class='aftericon'><a href=\"javascript:toggleview('$c','toggle$c')\" id='toggle$c'><font color=#000000>$label</font></a></div></div>\n";

@@ -295,10 +295,10 @@ sub bar_chart
 {
 local ($total, $used, $blue) = @_;
 local $rv;
-$rv .= sprintf "<img src=images/red.gif width=%s height=10>",
+$rv .= sprintf "<img src='images/rtwb-red.gif' width='%s' height='10'>",
 	int($bar_width*$used/$total)+1;
 if ($blue) {
-	$rv .= sprintf "<img src=images/blue.gif width=%s height=10>",
+	$rv .= sprintf "<img src=images/rtwb-blue.gif width=%s height=10>",
 		$bar_width - int($bar_width*$used/$total)-1;
 	}
 else {
@@ -317,9 +317,9 @@ local $rv;
 local $w1 = int($bar_width*$used1/$total)+1;
 local $w2 = int($bar_width*$used2/$total);
 local $w3 = int($bar_width*$used3/$total);
-$rv .= sprintf "<img src=images/red.gif width=%s height=10>", $w1;
-$rv .= sprintf "<img src=images/purple.gif width=%s height=10>", $w2;
-$rv .= sprintf "<img src=images/blue.gif width=%s height=10>", $w3;
+$rv .= sprintf "<img src=images/rtwb-red.gif width=%s height=10>", $w1;
+$rv .= sprintf "<img src=images/rtwb-purple.gif width=%s height=10>", $w2;
+$rv .= sprintf "<img src=images/rtwb-blue.gif width=%s height=10>", $w3;
 $rv .= sprintf "<img src=images/grey.gif width=%s height=10>",
 	$bar_width - $w1 - $w2 - $w3;
 return $rv;
