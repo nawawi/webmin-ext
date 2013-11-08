@@ -114,10 +114,7 @@ if ($in{'frame'} == 0) {
     } elsif ($in{'type'} == 1) {
         print "<title>$text{'chooser_title2'}</title>\n";
     }
-## awie start
-    print '<script>window.resizeTo(800,600);</script>';
-## awie end
-	print "<frameset rows='*,50'>\n";
+	print "<frameset rows='*,55'>\n";
 	print "<frame marginwidth=5 marginheight=5 name=topframe ",
             "src=\"chooser.cgi?frame=1&file=".$ufile.
             "&chroot=".$uchroot."&type=".$utype."&add=$add\">\n";
@@ -129,39 +126,34 @@ if ($in{'frame'} == 0) {
 	# List of files in this directory
 	&popup_header();
 	print <<EOF;
-<script>
-function fileclick(f, d)
-{
-curr = top.frames[1].document.forms[0].elements[1].value;
-if (curr == f) {
-	// Double-click! Enter directory or select file
-	if (d) {
-		// Enter this directory
-		location = "chooser.cgi?frame=1&add=$add&chroot=$uchroot&type=$utype&file="+f+"/";
-		}
-	else {
-		// Select this file and close the window
-		if ($add == 0) {
-			top.opener.ifield.value = f;
-			}
-		else {
-			if (top.opener.ifield.value != "") {
-				top.opener.ifield.value += "\\n";
-				}
-			top.opener.ifield.value += f;
-			}
-		top.close();
-		}
-	}
-else {
-	top.frames[1].document.forms[0].elements[1].value = f;
-	}
+<script type="text/javascript">
+function fileclick(f, d) {
+    curr = top.frames[1].document.forms[0].elements[1].value;
+    if (curr == f) {
+	    // Double-click! Enter directory or select file
+        if (d) {
+		    // Enter this directory
+		    location = "chooser.cgi?frame=1&add=$add&chroot=$uchroot&type=$utype&file="+f+"/";
+        } else {
+            // Select this file and close the window
+            if ($add == 0) {
+                top.opener.ifield.value = f;
+            } else {
+                if (top.opener.ifield.value != "") {
+                    top.opener.ifield.value += "\\n";
+                }
+                top.opener.ifield.value += f;
+            }
+            top.close();
+        }
+    } else {
+        top.frames[1].document.forms[0].elements[1].value = f;
+    }
 }
 
-function parentdir(p)
-{
-top.frames[1].document.forms[0].elements[1].value = p;
-location = "chooser.cgi?frame=1&chroot=$uchroot&type=$utype&file="+p;
+function parentdir(p) {
+    top.frames[1].document.forms[0].elements[1].value = p;
+    location = "chooser.cgi?frame=1&chroot=$uchroot&type=$utype&file="+p;
 }
 </script>
 
@@ -194,10 +186,9 @@ EOF
 		if ($f eq "..") {
 			$dir =~ /^(.*\/)[^\/]+\/$/;
 			$link = "<a href=\"\" onClick='parentdir(\"".&quote_escape($1)."\"); return false'>";
-			}
-		else {
-			$link = "<a href=\"\" onClick='fileclick(\"".&quote_escape("$dir$f")."\", $isdir); return false'>";
-			}
+        } else {
+            $link = "<a href=\"\" onClick='fileclick(\"".&quote_escape("$dir$f")."\", $isdir); return false'>";
+        }
 		local @cols;
 		push(@cols, "$link<img border=0 src=$gconfig{'webprefix'}/images/$icon></a>");
 		push(@cols, "$link".&html_escape($f)."</a>");
@@ -210,9 +201,9 @@ EOF
 ## awie start
         $scnt++;
 ## awie end
-		}
-	closedir(DIR);
-	print &ui_columns_end();
+    }
+    closedir(DIR);
+    print &ui_columns_end();
 ## awie start
     if ( $scnt >= 10 ) {
         print '<script>jQuery("div.searchsort").show();</script>';
@@ -238,48 +229,48 @@ jQuery(document).ready(function() {
 </script>
 _EOF
 ## awie end
-	&popup_footer();
-	}
-elsif ($in{'frame'} == 2) {
+    &popup_footer();
+} elsif ($in{'frame'} == 2) {
 	# Current file and OK/cancel buttons
 	&popup_header();
 	print <<EOF;
-<script>
-function filechosen()
-{
-if ($add == 0) {
-	top.opener.ifield.value = document.forms[0].path.value;
-	}
-else {
-	if (top.opener.ifield.value != "") {
-		top.opener.ifield.value += "\\n";
-		}
-	top.opener.ifield.value += document.forms[0].path.value;
-	}
-top.close();
+<style type="text/css">
+.ui_form_label {
+    width: 50px;
+    vertical-align: middle;
+}
+</style>
+<script type="text/javascript">
+function filechosen() {
+    if ($add == 0) {
+	    top.opener.ifield.value = document.forms[0].path.value;
+    } else {
+        if (top.opener.ifield.value != "") {
+            top.opener.ifield.value += "\\n";
+        }
+        top.opener.ifield.value += document.forms[0].path.value;
+    }
+    top.close();
 }
 </script>
 EOF
-	print &ui_form_start(undef, undef, undef,
-		"onSubmit='filechosen(); return false'");
+	print &ui_form_start(undef, undef, undef, "onSubmit='filechosen(); return false'");
 	print &ui_table_start(undef, "width=100%", 2);
-	print &ui_table_row(undef,
-		&ui_submit($text{'chooser_ok'})." ".
-		&ui_textbox("path", $dir.$file, 45, 0, undef,
-			    "style='width:90%'"), 2);
+	print &ui_table_row(&ui_submit($text{'chooser_ok'}),
+		&ui_textbox("path", $dir.$file, 45, 0, undef, "style='width:100%'"), 1);
 	print &ui_table_end();
 	print &ui_form_end();
 	&popup_footer();
-	}
+}
 
 # allowed_dir(dir)
 # Returns 1 if some directory should be listable
-sub allowed_dir
-{
-local ($dir) = @_;
-return 1 if ($rootdir eq "" || $rootdir eq "/" || $rootdir eq "c:");
-foreach my $allowed ($rootdir, split(/\t+/, $access{'otherdirs'})) {
-	return 1 if (&is_under_directory($allowed, $dir));
-	}
-return 0;
+sub allowed_dir {
+    local ($dir) = @_;
+    return 1 if ($rootdir eq "" || $rootdir eq "/" || $rootdir eq "c:");
+    foreach my $allowed ($rootdir, split(/\t+/, $access{'otherdirs'})) {
+        return 1 if (&is_under_directory($allowed, $dir));
+    }
+    return 0;
 }
+
