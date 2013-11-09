@@ -1,0 +1,24 @@
+.ui_form_label {
+    text-align:right;
+    vertical-align:middle;
+}
+
+input.ui_submit {
+    margin-top: 5px;
+    font-size: 14px;
+    height: 30px;
+    line-height: 30px;
+    width: 450px;
+}
+
+input.ui_textbox, input.ui_password {
+    width: 100%;
+}
+
+table.shrinkwrapper {
+    width: 450px;
+}
+
+.ui_table_body td {
+    padding: 4px;
+}
