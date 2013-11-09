@@ -19,16 +19,13 @@ foreach $o (split(/\0/, $in{'open'})) {
 	$open{$o} = 1;
 	}
 
-#$prehead = defined(&WebminCore::theme_prehead) ?
-#		&capture_function_output(\&WebminCore::theme_prehead) : "";
-#&popup_header(undef, $prehead);
-&popup_header(undef, undef);
+&popup_header('right');
 print "<center>\n";
 
 # Webmin logo
 if (&get_product_name() eq 'webmin') {
     print "<a href=http://www.webmin.com/ target=_new>";
-    print "<img src='$gconfig{'webprefix'}/images/webmin-blue.png' border=0 width='320' height='79'>";
+    print "<img src='$gconfig{'webprefix'}/images/webmin-red.png' border=0 width='320' height='79'>";
     print "</a><p/><hr/>";
 }
 
@@ -325,22 +322,4 @@ $rv .= sprintf "<img src=images/grey.gif width=%s height=10>",
 return $rv;
 }
 
-# collapsed_header(text, name)
-sub collapsed_header
-{
-local ($text, $name) = @_;
-print "<br><font style='font-size:16px'>";
-local $others = join("&", map { "open=$_" } grep { $_ ne $name } @open);
-$others = "&$others" if ($others);
-if ($open{$name}) {
-	print "<img src=images/gray-open.gif border=0>\n";
-	print "<a href='right.cgi?$others'>$text</a>";
-	}
-else {
-	print "<img src=images/gray-closed.gif border=0>\n";
-	print "<a href='right.cgi?open=$name$others'>$text</a>";
-	}
-print "</font><br>\n";
-return $open{$name};
-}
 

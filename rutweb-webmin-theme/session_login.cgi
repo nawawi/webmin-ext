@@ -5,7 +5,7 @@
 BEGIN { push(@INC, ".."); };
 use WebminCore;
 $pragma_no_cache = 1;
-#$ENV{'MINISERV_INTERNAL'} || die "Can only be called by miniserv.pl";
+$ENV{'MINISERV_INTERNAL'} || die "Can only be called by miniserv.pl";
 &init_config();
 &ReadParse();
 if ($gconfig{'loginbanner'} && $ENV{'HTTP_COOKIE'} !~ /banner=1/ &&
@@ -47,7 +47,7 @@ print "<center>\n";
 # Webmin logo
 if (&get_product_name() eq 'webmin') {
     print "<a href=http://www.webmin.com/ target=_new>";
-    print "<img src='$gconfig{'webprefix'}/images/webmin-blue.png' border=0 width='320' height='79'>";
+    print "<img src='$gconfig{'webprefix'}/images/webmin-red.png' border=0 width='320' height='79'>";
     print "</a><p/><hr/>";
 }
 
@@ -118,7 +118,6 @@ if (!$gconfig{'noremember'}) {
 
 print &ui_table_end(),"\n";
 print &ui_submit($text{'session_login'});
-#print &ui_reset($text{'session_clear'});
 print &ui_form_end();
 
 

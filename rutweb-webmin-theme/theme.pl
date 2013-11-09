@@ -5,16 +5,6 @@
 # Icons copyright David Vignoni, all other theme elements copyright 2005-2007
 # Virtualmin, Inc.
 
-$main::cloudmin_no_create_links = 1;
-$main::cloudmin_no_edit_buttons = 1;
-$main::cloudmin_no_global_links = 1;
-
-$main::mailbox_no_addressbook_button = 1;
-$main::mailbox_no_folder_button = 1;
-
-$main::basic_virtualmin_menu = 1;
-$main::nocreate_virtualmin_menu = 1;
-$main::nosingledomain_virtualmin_mode = 1;
 
 # functions
 sub nw_script_exists {
@@ -144,111 +134,6 @@ sub theme_generate_icon {
     }
 }
 
-# theme_post_save_domain(&domain, action)
-# Called by Virtualmin after a domain is updated, to refresh the left menu
-sub theme_post_save_domain {
-    local ($d, $action) = @_;
-    # Refresh left side, in case options have changed
-    print "<script type='text/javascript'>";
-    if ($action eq 'create') {
-        # Select the new domain
-        print "top.left.location = '$gconfig{'webprefix'}/left.cgi?dom=$d->{'id'}';";
-    } else {
-        # Just refresh left
-        print "top.left.location = top.left.location;";
-	}
-    print "</script>\n";
-}
-
-# theme_post_save_domains([domain, action]+)
-# Called after multiple domains are updated, to refresh the left menu
-sub theme_post_save_domains {
-    print "<script type='text/javascript'>";
-    print "top.left.location = top.left.location;";
-    print "</script>\n";
-}
-
-# theme_post_save_server(&server, action)
-# Called by Cloudmin after a server is updated, to refresh the left menu
-sub theme_post_save_server {
-    local ($s, $action) = @_;
-    if ($action eq 'create' || $action eq 'delete' || !$done_theme_post_save_server++) {
-        print "<script type='text/javascript'>";
-        print "top.left.location = top.left.location;";
-        print "</script>\n";
-    }
-}
-
-# theme_select_server(&server)
-# Called by Cloudmin when a page for a server is displayed, to select it on the
-# left menu.
-sub theme_select_server {
-    local ($server) = @_;
-print <<EOF;
-<script type='text/javascript'>
-if (window.parent && window.parent.frames[0]) {
-	var leftdoc = window.parent.frames[0].document;
-	var leftform = leftdoc.forms[0];
-	if (leftform) {
-		var serversel = leftform['sid'];
-		if (serversel && serversel.value != '$server->{'id'}' || !serversel) {
-			//if (serversel) {
-			//	// Need to change value of selector
-			//	serversel.value = '$server->{'id'}';
-			//	}
-			window.parent.frames[0].location = '$gconfig{'webprefix'}/left.cgi?mode=vm2&sid=$server->{'id'}';
-        }
-    }
-}
-</script>
-EOF
-}
-
-# theme_select_domain(&domain)
-# Called by Virtualmin when a page for a server is displayed, to select it on
-# the left menu.
-sub theme_select_domain {
-    local ($d) = @_;
-print <<EOF;
-<script type='text/javascript'>
-if (window.parent && window.parent.frames[0]) {
-	var leftdoc = window.parent.frames[0].document;
-	var leftform = leftdoc.forms[0];
-	if (leftform) {
-		var domsel = leftform['dom'];
-		if (domsel && domsel.value != '$d->{'id'}') {
-			// Need to change value
-			// domsel.value = '$d->{'id'}';
-			window.parent.frames[0].location = '$gconfig{'webprefix'}/left.cgi?mode=virtualmin&dom=$d->{'id'}';
-        }
-    }
-}
-</script>
-EOF
-}
-
-# theme_post_save_folder(&folder, action)
-# Called after some folder is changed, to refresh the left frame. The action
-# may be 'create', 'delete', 'modify' or 'read'
-sub theme_post_save_folder {
-    local ($folder, $action) = @_;
-    my $ref;
-    if ($action eq 'create' || $action eq 'delete' || $action eq 'modify') {
-        # Always refresh
-        $ref = 1;
-	} else {
-        # Only refesh if showing unread count
-        if (defined(&mailbox::should_show_unread) &&
-            &mailbox::should_show_unread($folder)) {
-            $ref = 1;
-        }
-    }
-    if ($ref) {
-        print "<script type='text/javascript'>";
-        print "top.frames[0].document.location = top.frames[0].document.location;";
-        print "</script>\n";
-	}
-}
 
 sub theme_post_change_modules {
 print <<EOF;
@@ -785,30 +670,13 @@ sub theme_footer {
         if ($url ne '/' || !$tconfig{'noindex'}) {
             if ($url eq '/') {
                 $url = "/?cat=$module_info{'category'}";
-            } elsif ($url eq '' && get_module_name() eq 'virtual-server' ||
-                $url eq '/virtual-server/') {
-                # Don't bother with virtualmin menu
-                next;
-            } elsif ($url eq '' && get_module_name() eq 'server-manager' ||
-		        $url eq '/server-manager/') {
-                # Don't bother with Cloudmin menu
-                next;
-            } elsif ($url =~ /(view|edit)_domain.cgi/ &&
-                get_module_name() eq 'virtual-server' ||
-                $url =~ /^\/virtual-server\/(view|edit)_domain.cgi/) {
-                # Don't bother with link to domain details
-                next;
-            } elsif ($url =~ /edit_serv.cgi/ &&
-                get_module_name() eq 'server-manager' ||
-                $url =~ /^\/virtual-server\/edit_serv.cgi/) {
-                # Don't bother with link to system details
-                next;
             } elsif ($url eq '' && get_module_name()) {
                 $url = "/".get_module_name()."/".
                         $module_info{'index_link'};
             } elsif ($url =~ /^\?/ && get_module_name()) {
                 $url = "/".get_module_name()."/$url";
             }
+            $url =~ s/\/\?cat=$/\/right.cgi/g;
             $url = "$gconfig{'webprefix'}$url" if ($url =~ /^\//);
             if ($count++ == 0) {
                 print theme_ui_nav_link("left", $url);
@@ -824,15 +692,6 @@ sub theme_footer {
     }
 }
 
-# Don't show virtualmin menu
-sub theme_redirect {
-    local ($orig, $url) = @_;
-    if (get_module_name() eq "virtual-server" && $orig eq "" &&
-        $url =~ /^((http|https):\/\/([^\/]+))\//) {
-            $url = "$1/right.cgi";
-    }
-    print "Location: $url\n\n";
-}
 
 # theme_ui_hidden_javascript()
 # Returns <script> and <style> sections for hiding functions and CSS
@@ -905,121 +764,7 @@ return false;
 EOF
 }
 
-# XXX Temporary until ui-lib.pl valign stuff gets cleaned up
-#
-# theme_ui_columns_table(&headings, width-percent, &data, &types, no-sort, title,
-#		   empty-msg)
-# Returns HTML for a complete table.
-# headings - An array ref of heading HTML
-# width-percent - Preferred total width
-# data - A 2x2 array ref of table contents. Each can either be a simple string,
-#        or a hash ref like :
-#          { 'type' => 'group', 'desc' => 'Some section title' }
-#          { 'type' => 'string', 'value' => 'Foo', 'colums' => 3,
-#	     'nowrap' => 1 }
-#          { 'type' => 'checkbox', 'name' => 'd', 'value' => 'foo',
-#            'label' => 'Yes', 'checked' => 1, 'disabled' => 1 }
-#          { 'type' => 'radio', 'name' => 'd', 'value' => 'foo', ... }
-# types - An array ref of data types, such as 'string', 'number', 'bytes'
-#         or 'date'
-# no-sort - Set to 1 to disable sorting by theme
-# title - Text to appear above the table
-# empty-msg - Message to display if no data
-sub theme_ui_columns_table {
-    my ($heads, $width, $data, $types, $nosort, $title, $emptymsg) = @_;
-    my $rv;
-
-    # Just show empty message if no data
-    if ($emptymsg && !@$data) {
-        $rv .= &ui_subheading($title) if ($title);
-        $rv .= "<b>$emptymsg</b><p>\n";
-        return $rv;
-    }
-
-    # Are there any checkboxes in each column? If so, make those columns narrow
-    my @tds;
-    my $maxwidth = 0;
-    foreach my $r (@$data) {
-        my $cc = 0;
-        foreach my $c (@$r) {
-            if (ref($c) &&
-                ($c->{'type'} eq 'checkbox' || $c->{'type'} eq 'radio')) {
-                    $tds[$cc] .= " width=5" if ($tds[$cc] !~ /width=/);
-            }
-            $cc++;
-        }
-        $maxwidth = $cc if ($cc > $maxwidth);
-    }
-    $rv .= &ui_columns_start($heads, $width, 0, \@tds, $title);
-
-    # Add the data rows
-    foreach my $r (@$data) {
-        my $c0;
-        if (ref($r->[0]) && ($r->[0]->{'type'} eq 'checkbox' ||
-            $r->[0]->{'type'} eq 'radio')) {
-                # First column is special
-                $c0 = $r->[0];
-                $r = [ @$r[1..(@$r-1)] ];
-        }
-        # Turn data into HTML
-        my @rtds = @tds;
-        my @cols;
-        my $cn = 0;
-        $cn++ if ($c0);
-        foreach my $c (@$r) {
-            if (!ref($c)) {
-                # Plain old string
-                push(@cols, $c);
-            } elsif ($c->{'type'} eq 'checkbox') {
-                # Checkbox in non-first column
-                push(@cols, &ui_checkbox($c->{'name'}, $c->{'value'},
-                    $c->{'label'}, $c->{'checked'},
-                    $c->{'tags'},
-                    $c->{'disabled'}));
-            } elsif ($c->{'type'} eq 'radio') {
-                # Radio button in non-first column
-                push(@cols, &ui_oneradio($c->{'name'}, $c->{'value'},
-                    $c->{'label'}, $c->{'checked'},
-                    $c->{'tags'},
-                    $c->{'disabled'}));
-            } elsif ($c->{'type'} eq 'group') {
-                # Header row that spans whole table
-                $rv .= &ui_columns_header([ $c->{'desc'} ],
-                    [ "colspan=$width" ]);
-                next;
-            } elsif ($c->{'type'} eq 'string') {
-                # A string, which might be special
-                push(@cols, $c->{'value'});
-                if ($c->{'columns'} > 1) {
-                    splice(@rtds, $cn, $c->{'columns'},
-                        "colspan=".$c->{'columns'});
-                }
-                if ($c->{'nowrap'}) {
-                    $rtds[$cn] .= " nowrap";
-                }
-            }
-            $cn++;
-        }
-        # Add the row
-        if (!$c0) {
-            $rv .= &ui_columns_row(\@cols, \@rtds);
-        } elsif ($c0->{'type'} eq 'checkbox') {
-            $rv .= &ui_checked_columns_row(\@cols, \@rtds, $c0->{'name'},
-                    $c0->{'value'}, $c0->{'checked'},
-                    $c0->{'disabled'},
-                    $c0->{'tags'});
-        } elsif ($c0->{'type'} eq 'radio') {
-            $rv .= &ui_radio_columns_row(\@cols, \@rtds, $c0->{'name'},
-                    $c0->{'value'}, $c0->{'checked'},
-                    $c0->{'disabled'},
-                $c0->{'tags'});
-        }
-    }
-
-    $rv .= &ui_columns_end();
-    return $rv;
-}
-
+# just replace -> and <- with &lArr; and &rArr; ascii character
 sub theme_ui_multi_select {
     my ($name, $values, $opts, $size, $missing, $dis,
         $opts_title, $vals_title, $width) = @_;
@@ -1059,6 +804,7 @@ sub theme_ui_multi_select {
     return $rv;
 }
 
+# XXX Temporary until ui-lib.pl <option> stuff gets cleaned up
 # add closing <option>
 sub theme_ui_select {
     my ($name, $value, $opts, $size, $multiple, $missing, $dis, $js) = @_;
