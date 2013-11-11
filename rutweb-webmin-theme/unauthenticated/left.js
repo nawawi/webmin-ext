@@ -27,7 +27,7 @@ function show_logs() {
             }
         }
     }
-    if (mod && mod.indexOf('.cgi') <= 0) {
+    if (mod && mod.indexOf('.cgi') <= 0 && mod !== 'webminlog') {
         // Show one module's logs
         window.parent.frames[1].location = 'webminlog/search.cgi?tall=4&uall=1&fall=1&mall=0&module='+mod;
     } else {
