@@ -1,10 +1,11 @@
 # tab size: 4
 # tab type: space
-# Original theme:
-# Virtualmin Framed Theme
-# Icons copyright David Vignoni, all other theme elements copyright 2005-2007
-# Virtualmin, Inc.
+# Based on Virtualmin Framed Theme
 
+# Global state for wrapper
+$WRAPPER_OPEN = 0;
+$COLUMNS_WRAPPER_OPEN = 0;
+$NOCACHE = 20131205;
 
 # functions
 sub nw_script_exists {
@@ -14,18 +15,7 @@ sub nw_script_exists {
     }
     return 0;
 }
-sub nw_js_open {
-    print "<script type='text/javascript'>";
-}
-sub nw_js_close {
-    print "</script>\n";
-}
-sub nw_css_open {
-    print "<style type='text/css'>";
-}
-sub nw_css_close {
-    print "</style>\n";
-}
+
 sub nw_js_src {
     my ($file) = @_;
     my @files = split(/ /, $file);
@@ -34,6 +24,7 @@ sub nw_js_src {
         print "<script type='text/javascript' src='$gconfig{'webprefix'}/unauthenticated/$fs'></script>\n" if ( nw_script_exists($fs) );
     }
 }
+
 sub nw_css_src {
     my ($file) = @_;
     my @files = split(/ /, $file);
@@ -58,12 +49,6 @@ sub nw_scripts {
 
     }
 }
-
-# Global state for wrapper
-# if 0, wrapper isn't on, add one and open it, if 1 close it, if 2+, subtract
-# but don't close
-$WRAPPER_OPEN = 0;
-$COLUMNS_WRAPPER_OPEN = 0;
 
 # theme_ui_post_header([subtext])
 # Returns HTML to appear directly after a standard header() call
@@ -136,30 +121,12 @@ sub theme_generate_icon {
 
 
 sub theme_post_change_modules {
-print <<EOF;
-<script type='text/javascript'>
-var url = '' + top.left.location;
-if ( url.match(/mode=.*/) ) {
-    if ( url.indexOf('mode=webmin') > 0) {
-        top.left.location = url;
-    }
-} else {
-    top.left.location = url;
-}
-</script>
-EOF
+    print "<script type='text/javascript'>top.left.location = url;</script>";
 }
 
-sub theme_prebody {
-    if (get_module_name() eq "virtual-server") {
-        # No need for Module Index link, as we have the left-side frame
-        $tconfig{'nomoduleindex'} = 1;
-    }
-}
 
 sub theme_prehead {
-    #print "<!-- $ENV{SCRIPT_NAME} -->\n";
-    &nw_css_src("reset-fonts-base.css style.css");
+    &nw_css_src("reset.css reset-fonts-base.css style.css");
 
     if ($ENV{'HTTP_USER_AGENT'} =~ /msie/i) {
         print "<!--[if IE]>";
@@ -172,15 +139,15 @@ sub theme_prehead {
     &nw_scripts("css");
 
     if ($ENV{'HTTP_USER_AGENT'} =~ /Chrome/) {
-        &nw_css_open();
+        print "<style type='text/css'>";
 	    print "textarea/*,pre*/ { font-size:120%; }";
-        &nw_css_close();
+        print "</style>";
     }
 
-    &nw_js_open();
+    print "<script type='text/javascript'>";
     print "var rowsel = new Array();";
-    &nw_js_close();
-    &nw_js_src("sorttable.js jquery.js placeholder.js placeholder_add.js");
+    print "</script>";
+    &nw_js_src("sorttable.js jquery.js placeholder.js placeholder_init.js");
     &nw_scripts("js");
 }
 
@@ -293,7 +260,7 @@ sub theme_ui_tabs_start {
     # Build list of tab titles and names
     my $tabnames = "[".join(",", map { "\"".&quote_escape($_->[0])."\"" } @$tabs)."]";
     my $tabtitles = "[".join(",", map { "\"".&quote_escape($_->[1])."\"" } @$tabs)."]";
-    $rv .= "<script>\n";
+    $rv .= "<script type='text/javascript'>\n";
     $rv .= "document.${name}_tabnames = $tabnames;\n";
     $rv .= "document.${name}_tabtitles = $tabtitles;\n";
     $rv .= "</script>\n";
@@ -403,7 +370,7 @@ sub theme_ui_columns_start {
 # Returns HTML for a row in a multi-column table
 sub theme_ui_columns_row {
     $theme_ui_columns_row_toggle = $theme_ui_columns_row_toggle ? '0' : '1';
-    local ($cols, $tdtags) = @_;
+    my ($cols, $tdtags) = @_;
     my $rv;
     $rv .= "<tr class='ui_columns_row row$theme_ui_columns_row_toggle' onMouseOver=\"this.className='mainhigh'\" onMouseOut=\"this.className='mainbody row$theme_ui_columns_row_toggle'\">\n";
     my $i;
@@ -482,6 +449,7 @@ sub theme_ui_hidden_table_start {
     my $divid = "hiddendiv_$name";
     my $openerid = "hiddenopener_$name";
     my $defimg = $status ? "open.gif" : "closed.gif";
+    $defimg .= "?".$NOCACHE;
     my $defclass = $status ? 'opener_shown' : 'opener_hidden';
     my $text = defined($tconfig{'cs_text'}) ? $tconfig{'cs_text'} :
                defined($gconfig{'cs_text'}) ? $gconfig{'cs_text'} : "000000";
@@ -517,10 +485,9 @@ sub theme_ui_hidden_table_start {
 # ui_hidden_table_start
 sub theme_ui_hidden_table_end {
     my ($name) = @_;
-    local $rv = "</table></div></td></tr></tbody></table>\n";
+    my $rv = "</table></div></td></tr></tbody></table>\n";
     if ( $WRAPPER_OPEN == 1 ) {
         $WRAPPER_OPEN--;
-        #$rv .= "</div>\n";
         $rv .= "</td></tr></table>\n";
     } elsif ($WRAPPER_OPEN) { 
         $WRAPPER_OPEN--;
@@ -531,7 +498,7 @@ sub theme_ui_hidden_table_end {
 # theme_select_all_link(field, form, text)
 # Adds support for row highlighting to the normal select all
 sub theme_select_all_link {
-    local ($field, $form, $text) = @_;
+    my ($field, $form, $text) = @_;
     $form = int($form);
     $text ||= $text{'ui_selall'};
     return "<a class='select_all' href='#' onClick='f = document.forms[$form]; ff = f.$field; ff.checked = true; r = document.getElementById(\"row_\"+ff.id); if (r) { r.className = \"mainsel\" }; for(i=0; i<f.$field.length; i++) { ff = f.${field}[i]; if (!ff.disabled) { ff.checked = true; r = document.getElementById(\"row_\"+ff.id); if (r) { r.className = \"mainsel\" } } } return false'>$text</a>";
@@ -540,7 +507,7 @@ sub theme_select_all_link {
 # theme_select_invert_link(field, form, text)
 # Adds support for row highlighting to the normal invert selection
 sub theme_select_invert_link {
-    local ($field, $form, $text) = @_;
+    my ($field, $form, $text) = @_;
     $form = int($form);
     $text ||= $text{'ui_selinv'};
     return "<a class='select_invert' href='#' onClick='f = document.forms[$form]; ff = f.$field; ff.checked = !f.$field.checked; r = document.getElementById(\"row_\"+ff.id); if (r) { r.className = ff.checked ? \"mainsel\" : \"mainbody\" }; for(i=0; i<f.$field.length; i++) { ff = f.${field}[i]; if (!ff.disabled) { ff.checked = !ff.checked; r = document.getElementById(\"row_\"+ff.id); if (r) { r.className = ff.checked ? \"mainsel\" : \"mainbody row\"+((i+1)%2) } } } return false'>$text</a>";
@@ -550,7 +517,7 @@ sub theme_select_invert_link {
 # Adds support for row highlighting to read mail module selector
 # XXX can delete after Usermin 1.400
 sub theme_select_status_link {
-    local ($name, $formno, $folder, $mail, $start, $end, $status, $label) = @_;
+    my ($name, $formno, $folder, $mail, $start, $end, $status, $label) = @_;
     $formno = int($formno);
     local @sel;
     for(my $i=$start; $i<=$end; $i++) {
@@ -571,7 +538,7 @@ sub theme_select_status_link {
 }
 
 sub theme_select_rows_link {
-    local ($field, $form, $text, $rows) = @_;
+    my ($field, $form, $text, $rows) = @_;
     $form = int($form);
     my $js = "var sel = { ".join(",", map { "\"".&quote_escape($_)."\":1" } @$rows)." }; ";
     $js .= "for(var i=0; i<document.forms[$form].${field}.length; i++) { var ff = document.forms[$form].${field}[i]; var r = document.getElementById(\"row_\"+ff.id); ff.checked = sel[ff.value]; if (r) { r.className = ff.checked ? \"mainsel\" : \"mainbody row\"+((i+1)%2) } } ";
@@ -581,7 +548,7 @@ sub theme_select_rows_link {
 
 sub theme_ui_checked_columns_row {
     $theme_ui_columns_row_toggle = $theme_ui_columns_row_toggle ? '0' : '1';
-    local ($cols, $tdtags, $checkname, $checkvalue, $checked, $disabled, $tags) = @_;
+    my ($cols, $tdtags, $checkname, $checkvalue, $checked, $disabled, $tags) = @_;
     my $rv;
     my $cbid = &quote_escape(quotemeta("${checkname}_${checkvalue}"));
     my $rid = &quote_escape(quotemeta("row_${checkname}_${checkvalue}"));
@@ -613,7 +580,7 @@ sub theme_ui_checked_columns_row {
 }
 
 sub theme_ui_radio_columns_row {
-    local ($cols, $tdtags, $checkname, $checkvalue, $checked) = @_;
+    my ($cols, $tdtags, $checkname, $checkvalue, $checked) = @_;
     my $rv;
     my $cbid = &quote_escape(quotemeta("${checkname}_${checkvalue}"));
     my $rid = &quote_escape(quotemeta("row_${checkname}_${checkvalue}"));
@@ -651,11 +618,11 @@ sub theme_ui_nav_link {
     my ($direction, $url, $disabled) = @_;
     my $alt = $direction eq "left" ? '<-' : '->';
     if ($disabled) {
-        return "<img alt=\"$alt\" align=\"middle\""
-                . "src=\"$gconfig{'webprefix'}/images/$direction-grey.gif\">\n";
+        return "<img class='ui_nav_link' alt=\"$alt\" align=\"middle\""
+                . "src=\"$gconfig{'webprefix'}/images/$direction-grey.gif?".$NOCACHE."\">\n";
     } else {
-        return "<a href=\"$url\"><img alt=\"$alt\" align=\"top\""
-        . "src=\"$gconfig{'webprefix'}/images/$direction.gif\"></a>\n";
+        return "<a class='ui_nav_link' href=\"$url\"><img class='ui_nav_link' alt=\"$alt\" align=\"top\""
+        . "src=\"$gconfig{'webprefix'}/images/$direction.gif?".$NOCACHE."\"></a>\n";
     }
 }
 
@@ -700,12 +667,8 @@ sub theme_ui_hidden_javascript {
     my $imgdir = "$gconfig{'webprefix'}/images";
 
 return <<EOF;
-<style>
-.opener_shown {display:inline}
-.opener_hidden {display:none}
-</style>
-<script>
-// Open or close a hidden section
+<style type='text/css'>.opener_shown {display:inline}.opener_hidden {display:none}</style>
+<script type='text/javascript'>
 function hidden_opener(divid, openerid)
 {
 var divobj = document.getElementById(divid);
@@ -801,34 +764,6 @@ sub theme_ui_multi_select {
             $size, 1, 0, $dis, $wstyle)."</td>\n";
     $rv .= "</tr></table>\n";
     $rv .= &ui_hidden($name, join("\n", map { $_->[0] } @$values));
-    return $rv;
-}
-
-# XXX Temporary until ui-lib.pl <option> stuff gets cleaned up
-# add closing <option>
-sub theme_ui_select {
-    my ($name, $value, $opts, $size, $multiple, $missing, $dis, $js) = @_;
-    my $rv;
-    $rv .= "<select class='ui_select' name=\"".&quote_escape($name)."\"".
-       ($size ? " size=$size" : "").
-       ($multiple ? " multiple" : "").
-       ($dis ? " disabled=true" : "")." ".$js.">\n";
-    my ($o, %opt, $s);
-    my %sel = ref($value) ? ( map { $_, 1 } @$value ) : ( $value, 1 );
-    foreach $o (@$opts) {
-	    $o = [ $o ] if (!ref($o));
-	    $rv .= "<option value=\"".&quote_escape($o->[0])."\"".
-                ($sel{$o->[0]} ? " selected" : "")." ".$o->[2].">".
-                ($o->[1] || $o->[0])."</option>\n";
-        $opt{$o->[0]}++;
-    }
-    foreach $s (keys %sel) {
-        if (!$opt{$s} && $missing) {
-            $rv .= "<option value=\"".&quote_escape($s)."\"".
-                   "selected>".($s eq "" ? "&nbsp;" : $s)."</option>\n";
-        }
-    }
-    $rv .= "</select>\n";
     return $rv;
 }
 

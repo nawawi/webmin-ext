@@ -45,10 +45,11 @@ if ($tconfig{'inframe'}) {
 
 print "<center>\n";
 # Webmin logo
+my $hr = 0;
 if (&get_product_name() eq 'webmin') {
-    print "<a href=http://www.webmin.com/ target=_new>";
     print "<img src='$gconfig{'webprefix'}/images/webmin-red.png' border=0 width='320' height='79'>";
-    print "</a><p/><hr/>";
+    print "<p/>".&ui_hr();
+    $hr = 1;
 }
 
 my $stext = "";
@@ -120,7 +121,7 @@ print &ui_table_end(),"\n";
 print &ui_submit($text{'session_login'});
 print &ui_form_end();
 
-
+print "<p/>".&ui_hr() if ( $hr eq '1' );
 print "</center>\n";
 
 # Output frame-detection Javascript, if theme uses frames

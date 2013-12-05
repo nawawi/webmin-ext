@@ -6,6 +6,7 @@ use WebminCore;
 &init_config();
 &ReadParse();
 &load_theme_library();
+
 if (&get_product_name() eq "usermin") {
 	$level = 3;
 	}
@@ -24,9 +25,8 @@ print "<center>\n";
 
 # Webmin logo
 if (&get_product_name() eq 'webmin') {
-    print "<a href=http://www.webmin.com/ target=_new>";
     print "<img src='$gconfig{'webprefix'}/images/webmin-red.png' border=0 width='320' height='79'>";
-    print "</a><p/><hr/>";
+    print "<p/>".&ui_hr();
 }
 
 if ($level == 0) {

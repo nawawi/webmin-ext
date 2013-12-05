@@ -109,7 +109,7 @@ if ($ENV{'HTTP_WEBMIN_SERVERS'}) {
 }
 
 print "</td></tr></tbody></table>\n";
-print "</div>\n";
+print "</div>\n"; # wrapper
 &popup_footer();
 
 # print_category_opener(name, &allcats, label)
