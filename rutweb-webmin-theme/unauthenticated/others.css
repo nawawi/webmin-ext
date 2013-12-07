@@ -1,0 +1,8 @@
+#show_backup_destination td {
+    vertical-align: middle;
+}
+
+#hiddendiv_sched td,
+#hiddendiv_prepost td {
+    vertical-align: middle;
+}

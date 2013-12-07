@@ -11,9 +11,8 @@ function toggleview(id1,id2) {
     (obj1.className=="itemshown") ? obj2.innerHTML="<img border='0' src='images/red-open.gif' alt='[&ndash;]'>" : obj2.innerHTML="<img border='0' src='images/red-closed.gif' alt='[+]'>"; 
 };
 
-// Show the logs for the current module in the right
 function show_logs() {
-    var url = ''+window.parent.frames[1].location;
+    var url = ''+window.parent.frames[2].location;
     var sl1 = url.indexOf('//');
     var mod = '';
     if (sl1 > 0) {
@@ -29,9 +28,9 @@ function show_logs() {
     }
     if (mod && mod.indexOf('.cgi') <= 0 && mod !== 'webminlog') {
         // Show one module's logs
-        window.parent.frames[1].location = 'webminlog/search.cgi?tall=4&uall=1&fall=1&mall=0&module='+mod;
+        window.parent.frames[2].location = 'webminlog/search.cgi?tall=4&uall=1&fall=1&mall=0&module='+mod;
     } else {
         // Show all logs
-        window.parent.frames[1].location = 'webminlog/search.cgi?tall=4&uall=1&fall=1&mall=0&mall=1'
+        window.parent.frames[2].location = 'webminlog/search.cgi?tall=4&uall=1&fall=1&mall=1'
     }
 };

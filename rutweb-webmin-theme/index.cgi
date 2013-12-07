@@ -21,7 +21,7 @@ $cols = &get_product_name() eq 'usermin' ? 180 : 250;
 &popup_header($title, undef, undef, 1);
 
 print <<EOF;
-<frameset rows="30,*" border=0>
+<frameset rows="40,*" border=0>
 <frame name="main" scrolling="no" src="top.cgi" noresize>
 <frameset cols="$cols,*" border=0>
 	<frame name="left" src="left.cgi$cat" scrolling="auto">

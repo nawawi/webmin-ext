@@ -53,10 +53,10 @@ if ($gconfig{"notabs_${base_remote_user}"} == 2 ||
 if ( -r "$root_directory/webmin_search.cgi" && $gaccess{'webminsearch'} ) {
     print "<hr/>";
     print "<form action=webmin_search.cgi target=right>\n";
-    print &ui_textbox("search", undef, 20, undef, undef, "placeholder='$text{'search'}' style='width:100%;'");
+    print &ui_textbox("search", undef, 20, undef, undef, "placeholder='$text{'left_search'}' style='width:100%;'");
 }
 
-print "<div class='leftlink'><hr></div>\n";
+print "<div class='leftlink'>".&ui_hr()."</div>\n";
 
 # Show current module's log search, if logging
 if ($gconfig{'log'} && &foreign_available("webminlog")) {

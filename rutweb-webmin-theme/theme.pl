@@ -30,7 +30,7 @@ sub nw_css_src {
     my @files = split(/ /, $file);
     my $fs;
     foreach $fs (@files) {
-        print "<link rel='stylesheet' type='text/css' href='$gconfig{'webprefix'}/unauthenticated/$fs' />\n" if ( nw_script_exists($fs) );
+        print "<link rel='stylesheet' type='text/css' href='$gconfig{'webprefix'}/unauthenticated/$fs'>\n" if ( nw_script_exists($fs) );
     }
 }
 
@@ -121,12 +121,12 @@ sub theme_generate_icon {
 
 
 sub theme_post_change_modules {
-    print "<script type='text/javascript'>top.left.location = url;</script>";
+    print "<script type='text/javascript'>window.parent.frames[1].location = window.parent.frames[1].location;</script>";
 }
 
 
 sub theme_prehead {
-    &nw_css_src("reset.css reset-fonts-base.css style.css");
+    &nw_css_src("reset.css reset-fonts-base.css style.css others.css");
 
     if ($ENV{'HTTP_USER_AGENT'} =~ /msie/i) {
         print "<!--[if IE]>";
@@ -147,7 +147,7 @@ sub theme_prehead {
     print "<script type='text/javascript'>";
     print "var rowsel = new Array();";
     print "</script>";
-    &nw_js_src("sorttable.js jquery.js placeholder.js placeholder_init.js");
+    &nw_js_src("sorttable.js jquery.js placeholder.js behavior.js");
     &nw_scripts("js");
 }
 
@@ -268,60 +268,28 @@ sub theme_ui_tabs_start {
     # Output the tabs
     my $imgdir = "$gconfig{'webprefix'}/images";
     $rv .= &ui_hidden($name, $sel)."\n";
-    $rv .= "<table border=0 cellpadding=0 cellspacing=0 class='ui_tabs'>\n";
-    $rv .= "<tr><td bgcolor=#ffffff colspan=".(scalar(@$tabs)*2+1).">";
-    if ($ENV{'HTTP_USER_AGENT'} !~ /msie/i) {
-        # For some reason, the 1-pixel space above the tabs appears huge on IE!
-        $rv .= "<img src=$imgdir/1x1.gif>";
-    }
-    $rv .= "</td></tr>\n";
+    $rv .= "<div class='ui_tabs'><table border=0 cellpadding=0 cellspacing=0 class='ui_tabs'>\n";
     $rv .= "<tr>\n";
-    $rv .= "<td bgcolor=#ffffff width=1><img src=$imgdir/1x1.gif></td>\n";
     foreach my $t (@$tabs) {
-        if ($t ne $tabs[0]) {
-            # Spacer
-            $rv .= "<td width=2 bgcolor=#ffffff class='ui_tab_spacer'>".
-                   "<img src=$imgdir/1x1.gif></td>\n";
-        }
         my $tabid = "tab_".$t->[0];
         $rv .= "<td id=${tabid} class='ui_tab'>";
         $rv .= "<table cellpadding=0 cellspacing=0 border=0><tr>";
         if ($t->[0] eq $sel) {
             # Selected tab
-            $rv .= "<td valign=top class='tabSelected'>".
-                   "<img src=$imgdir/lc2.gif alt=\"\"></td>";
-            $rv .= "<td class='tabSelected' nowrap>".
-                   "&nbsp;&nbsp;<b>$t->[1]</b>&nbsp;&nbsp;</td>";
-            $rv .= "<td valign=top class='tabSelected'>".
-                   "<img src=$imgdir/rc2.gif alt=\"\"></td>";
+            $rv .= "<td class='tabSelected' nowrap>$t->[1]</td>";
         } else {
             # Other tab (which has a link)
-            $rv .= "<td valign=top class='tabUnselected'>".
-                   "<img src=$imgdir/lc1.gif alt=\"\"></td>";
             $rv .= "<td class='tabUnselected' nowrap>".
-                   "&nbsp;&nbsp;<a href='$t->[2]' ".
+                   "<a href='$t->[2]' ".
                    "onClick='return select_tab(\"$name\", \"$t->[0]\")'>".
-                   "$t->[1]</a>&nbsp;&nbsp;</td>";
-            $rv .= "<td valign=top class='tabUnselected'>".
-                   "<img src=$imgdir/rc1.gif ".
-                   "alt=\"\"></td>";
+                   "$t->[1]</a></td>";
             $rv .= "</td>\n";
 		}
         $rv .= "</tr></table>";
         $rv .= "</td>\n";
     }
-    $rv .= "<td bgcolor=#ffffff width=1><img src=$imgdir/1x1.gif></td>\n";
-    $rv .= "</table>\n";
+    $rv .= "</table></div>\n";
 
-    if ($border) {
-        # All tabs are within a grey box
-        $rv .= "<table width=100% cellpadding=0 cellspacing=0 ".
-               "class='ui_tabs_box'>\n";
-	    $rv .= "<tr> <td bgcolor=#ffffff rowspan=3 width=1><img src=$imgdir/1x1.gif></td>\n";
-	    $rv .= "<td $cb colspan=3 height=2><img src=$imgdir/1x1.gif></td> </tr>\n";
-	    $rv .= "<tr> <td $cb width=2><img src=$imgdir/1x1.gif></td>\n";
-	    $rv .= "<td valign=top>";
-	}
     $main::ui_tabs_selected = $sel;
     return $rv;
 }
@@ -372,7 +340,7 @@ sub theme_ui_columns_row {
     $theme_ui_columns_row_toggle = $theme_ui_columns_row_toggle ? '0' : '1';
     my ($cols, $tdtags) = @_;
     my $rv;
-    $rv .= "<tr class='ui_columns_row row$theme_ui_columns_row_toggle' onMouseOver=\"this.className='mainhigh'\" onMouseOut=\"this.className='mainbody row$theme_ui_columns_row_toggle'\">\n";
+    $rv .= "<tr class='ui_columns_row row$theme_ui_columns_row_toggle'>\n";
     my $i;
     for($i=0; $i<@$cols; $i++) {
         $rv .= "<td ".$tdtags->[$i].">".
@@ -695,25 +663,16 @@ for(var i=0; i<tabnames.length; i++) {
   if (tabnames[i] == tabname) {
     // Selected table
     tabobj.innerHTML = '<table cellpadding=0 cellspacing=0><tr>'+
-		       '<td valign=top class=\\'tabSelected\\'>'+
-		       '<img src=$imgdir/lc2.gif alt=""></td>'+
-		       '<td class=\\'tabSelected\\' nowrap>'+
-		       '&nbsp;&nbsp;<b>'+title+'</b>&nbsp;&nbsp;</td>'+
-	               '<td valign=top class=\\'tabSelected\\'>'+
-		       '<img src=$imgdir/rc2.gif alt=""></td>'+
+		       '<td class=\\'tabSelected\\' nowrap>'+title+'</td>'+
 		       '</tr></table>';
     divobj.className = 'opener_shown';
     }
   else {
     // Non-selected tab
     tabobj.innerHTML = '<table cellpadding=0 cellspacing=0><tr>'+
-		       '<td valign=top class=\\'tabUnselected\\'>'+
-		       '<img src=$imgdir/lc1.gif alt=""></td>'+
 		       '<td class=\\'tabUnselected\\' nowrap>'+
-                       '&nbsp;&nbsp;<a href=\\'\\' onClick=\\'return select_tab("'+
-		       name+'", "'+tabnames[i]+'")\\'>'+title+'</a>&nbsp;&nbsp;</td>'+
-		       '<td valign=top class=\\'tabUnselected\\'>'+
-    		       '<img src=$imgdir/rc1.gif alt=""></td>'+
+                       '<a href=\\'\\' onClick=\\'return select_tab("'+
+		       name+'", "'+tabnames[i]+'")\\'>'+title+'</a></td>'+
 		       '</tr></table>';
     divobj.className = 'opener_hidden';
     }

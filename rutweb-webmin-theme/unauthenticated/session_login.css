@@ -36,3 +36,9 @@ table.shrinkwrapper {
 .ui_table_body td {
     padding: 4px;
 }
+
+table.header {
+    padding:0;
+    border:none;
+    background-color:inherit;
+}

@@ -96,11 +96,11 @@ print &ui_table_row(undef,
 
 # Username and password
 $tags = $gconfig{'noremember'} ? "autocomplete=off " : "";
-$plu = "placeholder='$text{'session_user'}'";
+$plu = "autocomplete='off' placeholder='$text{'session_user'}'";
 print &ui_table_row(undef,
         &ui_textbox("user", $in{'failed'}, 20, 0, undef, $tags.$plu));
 
-$plu = "placeholder='$text{'session_pass'}'";
+$plu = "autocomplete='off' placeholder='$text{'session_pass'}'";
 print &ui_table_row(undef,
         &ui_password("pass", undef, 20, 0, undef, $tags.$plu));
 
