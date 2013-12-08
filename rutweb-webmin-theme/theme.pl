@@ -5,7 +5,9 @@
 # Global state for wrapper
 $WRAPPER_OPEN = 0;
 $COLUMNS_WRAPPER_OPEN = 0;
-$NOCACHE = 20131205;
+%tinfo = &get_theme_info($current_theme);
+$VERSION = ( $tinfo{'version'} ? $tinfo{'version'} : 20121208 );
+$VERSION =~ s/\.//g;
 
 # functions
 sub nw_script_exists {
@@ -21,7 +23,7 @@ sub nw_js_src {
     my @files = split(/ /, $file);
     my $fs;
     foreach $fs (@files) {
-        print "<script type='text/javascript' src='$gconfig{'webprefix'}/unauthenticated/$fs'></script>\n" if ( nw_script_exists($fs) );
+        print "<script type='text/javascript' src='$gconfig{'webprefix'}/unauthenticated/".$fs."?".$VERSION."'></script>" if ( nw_script_exists($fs) );
     }
 }
 
@@ -30,7 +32,7 @@ sub nw_css_src {
     my @files = split(/ /, $file);
     my $fs;
     foreach $fs (@files) {
-        print "<link rel='stylesheet' type='text/css' href='$gconfig{'webprefix'}/unauthenticated/$fs'>\n" if ( nw_script_exists($fs) );
+        print "<link rel='stylesheet' type='text/css' href='$gconfig{'webprefix'}/unauthenticated/".$fs."?".$VERSION."'>" if ( nw_script_exists($fs) );
     }
 }
 
@@ -55,8 +57,8 @@ sub nw_scripts {
 sub theme_ui_post_header {
     my ($text) = @_;
     my $rv;
-    $rv .= "<div class='ui_post_header'>$text</div>\n" if (defined($text));
-    #$rv .= "<div class='section'>\n";
+    $rv .= "<div class='ui_post_header'>$text</div>" if (defined($text));
+    #$rv .= "<div class='section'>";
     $rv .= "<p>" if (!defined($text));
     return $rv;
 }
@@ -65,7 +67,7 @@ sub theme_ui_post_header {
 # Returns HTML to appear directly before a standard footer() call
 sub theme_ui_pre_footer {
     my $rv;
-    $rv .= "</div><p>\n";
+    $rv .= "</div><p>";
     return $rv;
 }
 
@@ -82,20 +84,20 @@ sub theme_icons_table {
     my ($i, $need_tr);
     my $cols = $_[3] ? $_[3] : 4;
     my $per = int(100.0 / $cols);
-    print "<div class='wrapper'>\n";
-    print "<table id='main' width=100% cellpadding=5 class='icons_table'>\n";
+    print "<div class='wrapper'>";
+    print "<table id='main' width=100% cellpadding=5 class='icons_table'>";
     for($i=0; $i<@{$_[0]}; $i++) {
-        if ($i%$cols == 0) { print "<tr>\n"; }
-        print "<td width=$per% align=center valign=top>\n";
+        if ($i%$cols == 0) { print "<tr>"; }
+        print "<td width='$per'% align=center valign=top>";
         &generate_icon($_[2]->[$i], $_[1]->[$i], $_[0]->[$i],
             $_[4], $_[5], $_[6], $_[7]->[$i], $_[8]->[$i]);
-        print "</td>\n";
-        if ($i%$cols == $cols-1) { print "</tr>\n"; }
+        print "</td>";
+        if ($i%$cols == $cols-1) { print "</tr>"; }
     }
-    while($i++%$cols) { print "<td width=$per%></td>\n"; $need_tr++; }
-    print "</tr>\n" if ($need_tr);
-    print "</table>\n";
-    print "</div>\n";
+    while($i++%$cols) { print "<td width='$per%'></td>"; $need_tr++; }
+    print "</tr>" if ($need_tr);
+    print "</table>";
+    print "</div>";
 }
 
 sub theme_generate_icon {
@@ -103,19 +105,19 @@ sub theme_generate_icon {
     my $h = !defined($_[5]) ? "height=48" : $_[5] ? "height=$_[5]" : "";
     if ($tconfig{'noicons'}) {
         if ($_[2]) {
-            print "$_[6]<a href=\"$_[2]\" $_[3]>$_[1]</a>$_[7]\n";
+            print "$_[6]<a href=\"$_[2]\" $_[3]>$_[1]</a>$_[7]";
         } else {
-            print "$_[6]$_[1]$_[7]\n";
+            print "$_[6]$_[1]$_[7]";
         }
     } elsif ($_[2]) {
-        print "<table><tr><td width=48 height=48>\n",
-              "<a href=\"$_[2]\" $_[3]><img src=\"$_[0]\" alt=\"\" border=0 ",
-              "$w $h></a></td></tr></table>\n";
-        print "$_[6]<a href=\"$_[2]\" $_[3]>$_[1]</a>$_[7]\n";
+        print "<table><tr><td width=48 height=48>",
+              "<a href=\"$_[2]\" $_[3]><img src=\"".$_[0]."?$VERSION\" alt=\"\" border=0 ",
+              "$w $h></a></td></tr></table>";
+        print "$_[6]<a href=\"$_[2]\" $_[3]>$_[1]</a>$_[7]";
     } else {
-        print "<table><tr><td width=48 height=48>\n",
-              "<img src=\"$_[0]\" alt=\"\" border=0 $w $h>",
-              "</td></tr></table>\n$_[6]$_[1]$_[7]\n";
+        print "<table><tr><td width=48 height=48>",
+              "<img src=\"".$_[0]."?$VERSION\" alt=\"\" border=0 $w $h>",
+              "</td></tr></table>$_[6]$_[1]$_[7]";
     }
 }
 
@@ -133,7 +135,7 @@ sub theme_prehead {
         print "<style type=\"text/css\">";
         print "table.formsection, table.ui_table, table.loginform { border-collapse: collapse; }";
         print "</style>";
-        print "<![endif]-->\n";
+        print "<![endif]-->";
     }
 
     &nw_scripts("css");
@@ -145,7 +147,7 @@ sub theme_prehead {
     }
 
     print "<script type='text/javascript'>";
-    print "var rowsel = new Array();";
+    print "var VERSION='".$VERSION."',rowsel = new Array();";
     print "</script>";
     &nw_js_src("sorttable.js jquery.js placeholder.js behavior.js");
     &nw_scripts("js");
@@ -170,11 +172,11 @@ sub theme_ui_table_start {
     my $colspan = 1;
 
     if (!$WRAPPER_OPEN) {
-        $rv .= "<table class='shrinkwrapper' $tabletags>\n";
-        $rv .= "<tr><td>\n";
+        $rv .= "<table class='shrinkwrapper'".($tabletags ? " ".$tabletags : "").">";
+        $rv .= "<tr><td>";
     }
     $WRAPPER_OPEN++;
-    $rv .= "<table class='ui_table' $tabletags>\n";
+    $rv .= "<table class='ui_table'".($tabletags ? " ".$tabletags : "").">";
     if (defined($heading) || defined($rightheading)) {
         $rv .= "<thead><tr>";
         if (defined($heading)) {
@@ -184,10 +186,10 @@ sub theme_ui_table_start {
             $rv .= "<td align=right>$rightheading</td>";
             $colspan++;
         }
-        $rv .= "</tr></thead>\n";
+        $rv .= "</tr></thead>";
     }
-    $rv .= "<tbody> <tr class='ui_table_body'> <td colspan='$colspan'>".
-            "<table width='100%'>\n";
+    $rv .= "<tbody> <tr class='ui_table_body'><td colspan='$colspan'>".
+            "<table width='100%'>";
     $main::ui_table_cols = $cols || 4;
     $main::ui_table_pos = 0;
     $main::ui_table_default_tds = $tds;
@@ -206,15 +208,15 @@ sub theme_ui_table_row {
         $main::ui_table_pos != 0) {
         # If the requested number of cols won't fit in the number
         # remaining, start a new row
-        $rv .= "</tr>\n";
+        $rv .= "</tr>";
         $main::ui_table_pos = 0;
     }
-    $rv .= "<tr class='ui_form_pair'>\n" if ($main::ui_table_pos%$main::ui_table_cols == 0);
-    $rv .= "<td class='ui_form_label' $tds->[0]><b>$label</b></td>\n" if (defined($label));
-    $rv .= "<td class='ui_form_value' colspan=$cols $tds->[1]>$value</td>\n";
+    $rv .= "<tr class='ui_form_pair'>" if ($main::ui_table_pos%$main::ui_table_cols == 0);
+    $rv .= "<td class='ui_form_label'".($tds->[0] ? " ".$tds->[0] : "")."><b>$label</b></td>" if (defined($label));
+    $rv .= "<td class='ui_form_value' colspan='$cols'".($tds->[1] ? " ".$tds->[1] : "").">$value</td>";
     $main::ui_table_pos += $cols+(defined($label) ? 1 : 0);
     if ($main::ui_table_pos%$main::ui_table_cols == 0) {
-        $rv .= "</tr>\n";
+        $rv .= "</tr>";
         $main::ui_table_pos = 0;
     }
     return $rv;
@@ -237,11 +239,11 @@ sub theme_ui_table_end {
         $main::ui_table_pos = undef;
         $main::ui_table_default_tds = undef;
     }
-    $rv .= "</tbody></table></td></tr></table>\n";
+    $rv .= "</tbody></table></td></tr></table>";
     if ($WRAPPER_OPEN==1) {
-        #$rv .= "</div>\n";
-        $rv .= "</td></tr>\n";
-        $rv .= "</table>\n";
+        #$rv .= "</div>";
+        $rv .= "</td></tr>";
+        $rv .= "</table>";
     }
     $WRAPPER_OPEN--;
     return $rv;
@@ -260,16 +262,16 @@ sub theme_ui_tabs_start {
     # Build list of tab titles and names
     my $tabnames = "[".join(",", map { "\"".&quote_escape($_->[0])."\"" } @$tabs)."]";
     my $tabtitles = "[".join(",", map { "\"".&quote_escape($_->[1])."\"" } @$tabs)."]";
-    $rv .= "<script type='text/javascript'>\n";
-    $rv .= "document.${name}_tabnames = $tabnames;\n";
-    $rv .= "document.${name}_tabtitles = $tabtitles;\n";
-    $rv .= "</script>\n";
+    $rv .= "<script type='text/javascript'>";
+    $rv .= "document.${name}_tabnames = $tabnames;";
+    $rv .= "document.${name}_tabtitles = $tabtitles;";
+    $rv .= "</script>";
 
     # Output the tabs
     my $imgdir = "$gconfig{'webprefix'}/images";
-    $rv .= &ui_hidden($name, $sel)."\n";
-    $rv .= "<div class='ui_tabs'><table border=0 cellpadding=0 cellspacing=0 class='ui_tabs'>\n";
-    $rv .= "<tr>\n";
+    $rv .= &ui_hidden($name, $sel)."";
+    $rv .= "<div class='ui_tabs'><table border=0 cellpadding=0 cellspacing=0 class='ui_tabs'>";
+    $rv .= "<tr>";
     foreach my $t (@$tabs) {
         my $tabid = "tab_".$t->[0];
         $rv .= "<td id=${tabid} class='ui_tab'>";
@@ -283,15 +285,19 @@ sub theme_ui_tabs_start {
                    "<a href='$t->[2]' ".
                    "onClick='return select_tab(\"$name\", \"$t->[0]\")'>".
                    "$t->[1]</a></td>";
-            $rv .= "</td>\n";
+            $rv .= "</td>";
 		}
         $rv .= "</tr></table>";
-        $rv .= "</td>\n";
+        $rv .= "</td>";
     }
-    $rv .= "</table></div>\n";
+    $rv .= "</table></div>";
 
     $main::ui_tabs_selected = $sel;
     return $rv;
+}
+
+sub theme_ui_tabs_end {
+    return;
 }
 
 # theme_ui_columns_start(&headings, [width-percent], [noborder], [&tdtags], [title])
@@ -304,8 +310,8 @@ sub theme_ui_columns_start {
     if (!$noborder && !$COLUMNS_WRAPPER_OPEN) {
         $rv .= "<table class='wrapper' width="
 	         . ($width ? $width : "100")
-	         . "%>\n";
-        $rv .= "<tr><td>\n";
+	         . "%>";
+        $rv .= "<tr><td>";
     }
     if (!$noborder) {
         $COLUMNS_WRAPPER_OPEN++;
@@ -315,21 +321,21 @@ sub theme_ui_columns_start {
     push(@classes, "sortable") if (!$href);
     push(@classes, "ui_columns");
     $rv .= "<table".(@classes ? " class='".join(" ", @classes)."'" : "").
-        (defined($width) ? " width=$width%" : "").">\n";
+        (defined($width) ? " width=$width%" : "").">";
 
     if ($title) {
-        $rv .= "<thead> <tr $tb class='ui_columns_heading'>".
+        $rv .= "<thead><tr".($tb ? " ".$tb : "")." class='ui_columns_heading'>".
 	           "<td colspan=".scalar(@$heads)."><b>$title</b></td>".
-	           "</tr> </thead> <tbody>\n";
+	           "</tr></thead><tbody>";
     }
 
-    $rv .= "<thead> <tr $tb class='ui_columns_heads'>\n";
+    $rv .= "<thead><tr".($tb ? " ".$tb : "")." class='ui_columns_heads'>";
     my $i;
     for($i=0; $i<@$heads; $i++) {
-        $rv .= "<td ".$tdtags->[$i]."><b>".
-                ($heads->[$i] eq "" ? "<br>" : $heads->[$i])."</b></td>\n";
+        $rv .= "<td".( $tdtags->[$i] ? " ".$tdtags->[$i] : "")."><b>".
+                ($heads->[$i] eq "" ? "<br>" : $heads->[$i])."</b></td>";
     }
-    $rv .= "</tr></thead> <tbody>\n";
+    $rv .= "</tr></thead><tbody>";
     $theme_ui_columns_count++;
     return $rv;
 }
@@ -340,13 +346,13 @@ sub theme_ui_columns_row {
     $theme_ui_columns_row_toggle = $theme_ui_columns_row_toggle ? '0' : '1';
     my ($cols, $tdtags) = @_;
     my $rv;
-    $rv .= "<tr class='ui_columns_row row$theme_ui_columns_row_toggle'>\n";
+    $rv .= "<tr class='ui_columns_row row$theme_ui_columns_row_toggle'>";
     my $i;
     for($i=0; $i<@$cols; $i++) {
         $rv .= "<td ".$tdtags->[$i].">".
-                ($cols->[$i] !~ /\S/ ? "<br>" : $cols->[$i])."</td>\n";
+                ($cols->[$i] !~ /\S/ ? "<br>" : $cols->[$i])."</td>";
     }
-    $rv .= "</tr>\n";
+    $rv .= "</tr>";
     return $rv;
 }
 
@@ -354,9 +360,9 @@ sub theme_ui_columns_row {
 # Returns HTML to end a table started by ui_columns_start
 sub theme_ui_columns_end {
     my $rv;
-    $rv = "</tbody> </table>\n";
+    $rv = "</tbody></table>";
     if ($COLUMNS_WRAPPER_OPEN == 1) { # Last wrapper
-        $rv .= "</td> </tr> </table>\n";
+        $rv .= "</td></tr></table>";
     }
     $COLUMNS_WRAPPER_OPEN--;
     return $rv;
@@ -374,34 +380,34 @@ sub theme_ui_grid_table {
     my $rv = "<table class='wrapper' " 
             . ($width ? " width=$width%" : " width=100%")
             . ($tabletags ? " ".$tabletags : "")
-            . "><tr><td>\n";
+            . "><tr><td>";
     $rv .= "<table class='ui_table ui_grid_table'"
          . ($width ? " width=$width%" : "")
          . ($tabletags ? " ".$tabletags : "")
-         . ">\n";
+         . ">";
     if ($title) {
         $rv .= "<thead><tr class='ui_grid_heading'> ".
-               "<td colspan=$cols><b>$title</b></td> </tr></thead>\n";
+               "<td colspan=$cols><b>$title</b></td></tr></thead>";
     }
-    $rv .= "<tbody>\n";
+    $rv .= "<tbody>";
     my $i;
     for($i=0; $i<@$elements; $i++) {
         $rv .= "<tr class='ui_grid_row'>" if ($i%$cols == 0);
         $rv .= "<td ".$tds->[$i%$cols]." valign=top class='ui_grid_cell'>".
-            $elements->[$i]."</td>\n";
+            $elements->[$i]."</td>";
         $rv .= "</tr>" if ($i%$cols == $cols-1);
     }
 
     if ($i%$cols) {
         while($i%$cols) {
-            $rv .= "<td ".$tds->[$i%$cols]." class='ui_grid_cell'><br></td>\n";
+            $rv .= "<td ".$tds->[$i%$cols]." class='ui_grid_cell'><br></td>";
             $i++;
         }
-        $rv .= "</tr>\n";
+        $rv .= "</tr>";
     }
-    $rv .= "</table>\n";
-    $rv .= "</tbody>\n";
-    $rv .= "</td></tr></table>\n"; # wrapper
+    $rv .= "</table>";
+    $rv .= "</tbody>";
+    $rv .= "</td></tr></table>"; # wrapper
     return $rv;
 }
 
@@ -417,31 +423,31 @@ sub theme_ui_hidden_table_start {
     my $divid = "hiddendiv_$name";
     my $openerid = "hiddenopener_$name";
     my $defimg = $status ? "open.gif" : "closed.gif";
-    $defimg .= "?".$NOCACHE;
+    $defimg .= "?".$VERSION;
     my $defclass = $status ? 'opener_shown' : 'opener_hidden';
     my $text = defined($tconfig{'cs_text'}) ? $tconfig{'cs_text'} :
                defined($gconfig{'cs_text'}) ? $gconfig{'cs_text'} : "000000";
 
     if (!$WRAPPER_OPEN) { # If we're not already inside of a wrapper, wrap it
-        $rv .= "<table class='shrinkwrapper' $tabletags>\n";
-        $rv .= "<tr><td>\n";
+        $rv .= "<table class='shrinkwrapper'".($tabletags ? " ".$tabletags : "").">";
+        $rv .= "<tr><td>";
     }
 
     $WRAPPER_OPEN++;
     my $colspan = 1;
-    $rv .= "<table class='ui_table' $tabletags>\n";
+    $rv .= "<table class='ui_table'".($tabletags ? " ".$tabletags : "").">";
     if (defined($heading) || defined($rightheading)) {
         $rv .= "<thead><tr>";
         if (defined($heading)) {
-            $rv .= "<td><a href=\"javascript:hidden_opener('$divid', '$openerid')\" id='$openerid'><img border=0 src='$gconfig{'webprefix'}/images/$defimg'></a> <a href=\"javascript:hidden_opener('$divid', '$openerid')\" class='ui-hidden-table-title'><b>$heading</b></a></td>";
+            $rv .= "<td><a href=\"javascript:hidden_opener('$divid', '$openerid')\" id='$openerid'><img border=0 src='$gconfig{'webprefix'}/images/$defimg'></a><a href=\"javascript:hidden_opener('$divid', '$openerid')\" class='ui-hidden-table-title'><b>$heading</b></a></td>";
         }
         if (defined($rightheading)) {
             $rv .= "<td align=right>$rightheading</td>";
             $colspan++;
         }
-        $rv .= "</tr> </thead>\n";
+        $rv .= "</tr> </thead>";
     }
-    $rv .= "<tbody><tr> <td colspan=$colspan><div class='$defclass' id='$divid'><table width=100%>\n";
+    $rv .= "<tbody><tr> <td colspan=$colspan><div class='$defclass' id='$divid'><table width=100%>";
     $main::ui_table_cols = $cols || 4;
     $main::ui_table_pos = 0;
     $main::ui_table_default_tds = $tds;
@@ -453,10 +459,10 @@ sub theme_ui_hidden_table_start {
 # ui_hidden_table_start
 sub theme_ui_hidden_table_end {
     my ($name) = @_;
-    my $rv = "</table></div></td></tr></tbody></table>\n";
+    my $rv = "</table></div></td></tr></tbody></table>";
     if ( $WRAPPER_OPEN == 1 ) {
         $WRAPPER_OPEN--;
-        $rv .= "</td></tr></table>\n";
+        $rv .= "</td></tr></table>";
     } elsif ($WRAPPER_OPEN) { 
         $WRAPPER_OPEN--;
     }
@@ -481,30 +487,6 @@ sub theme_select_invert_link {
     return "<a class='select_invert' href='#' onClick='f = document.forms[$form]; ff = f.$field; ff.checked = !f.$field.checked; r = document.getElementById(\"row_\"+ff.id); if (r) { r.className = ff.checked ? \"mainsel\" : \"mainbody\" }; for(i=0; i<f.$field.length; i++) { ff = f.${field}[i]; if (!ff.disabled) { ff.checked = !ff.checked; r = document.getElementById(\"row_\"+ff.id); if (r) { r.className = ff.checked ? \"mainsel\" : \"mainbody row\"+((i+1)%2) } } } return false'>$text</a>";
 }
 
-# theme_select_status_link(name, form, &folder, &mails, start, end, status, label)
-# Adds support for row highlighting to read mail module selector
-# XXX can delete after Usermin 1.400
-sub theme_select_status_link {
-    my ($name, $formno, $folder, $mail, $start, $end, $status, $label) = @_;
-    $formno = int($formno);
-    local @sel;
-    for(my $i=$start; $i<=$end; $i++) {
-        local $read = &get_mail_read($folder, $mail->[$i]);
-        if ($status == 0) {
-            push(@sel, ($read&1) ? 0 : 1);
-        } elsif ($status == 1) {
-            push(@sel, ($read&1) ? 1 : 0);
-        } elsif ($status == 2) {
-            push(@sel, ($read&2) ? 1 : 0);
-        }
-    }
-    my $js = "var sel = [ ".join(",", @sel)." ]; ";
-    $js .= "var f = document.forms[$formno]; ";
-    $js .= "for(var i=0; i<sel.length; i++) { document.forms[$formno].${name}[i].checked = sel[i]; var ff = f.${name}[i]; var r = document.getElementById(\"row_\"+ff.id); if (r) { r.className = ff.checked ? \"mainsel\" : \"mainbody row\"+((i+1)%2) } }";
-    $js .= "return false;";
-    return "<a class='select_status' href='#' onClick='$js'>$label</a>";
-}
-
 sub theme_select_rows_link {
     my ($field, $form, $text, $rows) = @_;
     $form = int($form);
@@ -526,24 +508,24 @@ sub theme_ui_checked_columns_row {
         $mycb =~ s/mainbody/mainsel/g;
     }
     $mycb =~ s/class='/class='row$theme_ui_columns_row_toggle ui_checked_columns /;
-    $rv .= "<tr id=\"$ridtr\" $mycb onMouseOver=\"this.className = document.getElementById('$cbid').checked ? 'mainhighsel' : 'mainhigh'\" onMouseOut=\"this.className = document.getElementById('$cbid').checked ? 'mainsel' : 'mainbody row$theme_ui_columns_row_toggle'\">\n";
+    $rv .= "<tr id=\"$ridtr\" $mycb onMouseOver=\"this.className = document.getElementById('$cbid').checked ? 'mainhighsel' : 'mainhigh'\" onMouseOut=\"this.className = document.getElementById('$cbid').checked ? 'mainsel' : 'mainbody row$theme_ui_columns_row_toggle'\">";
     $rv .= "<td class='ui_checked_checkbox' ".$tdtags->[0].">".
             &ui_checkbox($checkname, $checkvalue, undef, $checked, $tags." "."onClick=\"document.getElementById('$rid').className = this.checked ? 'mainhighsel' : 'mainhigh';\"", $disabled).
-            "</td>\n";
+            "</td>";
     my $i;
     for($i=0; $i<@$cols; $i++) {
         $rv .= "<td ".$tdtags->[$i+1].">";
-        if ($cols->[$i] !~ /<a\s+href|<input|<select|<textarea/) {
+        if ($cols->[$i] !~ /<a\s+href|<input|<select|<textarea|<span|<p|<br/) {
             $rv .= "<label for=\"".
             &quote_escape("${checkname}_${checkvalue}")."\">";
         }
         $rv .= ($cols->[$i] !~ /\S/ ? "<br>" : $cols->[$i]);
-        if ($cols->[$i] !~ /<a\s+href|<input|<select|<textarea/) {
+        if ($cols->[$i] !~ /<a\s+href|<input|<select|<textarea|<span|<p|<br/) {
             $rv .= "</label>";
         }
-        $rv .= "</td>\n";
+        $rv .= "</td>";
     }
-    $rv .= "</tr>\n";
+    $rv .= "</tr>";
     return $rv;
 }
 
@@ -559,24 +541,24 @@ sub theme_ui_radio_columns_row {
     }
 
     $mycb =~ s/class='/class='ui_radio_columns /;
-    $rv .= "<tr $mycb id=\"$ridtr\" onMouseOver=\"this.className = document.getElementById('$cbid').checked ? 'mainhighsel' : 'mainhigh'\" onMouseOut=\"this.className = document.getElementById('$cbid').checked ? 'mainsel' : 'mainbody'\">\n";
+    $rv .= "<tr $mycb id=\"$ridtr\" onMouseOver=\"this.className = document.getElementById('$cbid').checked ? 'mainhighsel' : 'mainhigh'\" onMouseOut=\"this.className = document.getElementById('$cbid').checked ? 'mainsel' : 'mainbody'\">";
     $rv .= "<td ".$tdtags->[0]." class='ui_radio_radio'>".
             &ui_oneradio($checkname, $checkvalue, undef, $checked, "onClick=\"for(i=0; i<form.$checkname.length; i++) { ff = form.${checkname}[i]; r = document.getElementById('row_'+ff.id); if (r) { r.className = 'mainbody' } } document.getElementById('$rid').className = this.checked ? 'mainhighsel' : 'mainhigh';\"").
-            "</td>\n";
+            "</td>";
     my $i;
     for($i=0; $i<@$cols; $i++) {
         $rv .= "<td ".$tdtags->[$i+1].">";
-        if ($cols->[$i] !~ /<a\s+href|<input|<select|<textarea/) {
+        if ($cols->[$i] !~ /<a\s+href|<input|<select|<textarea|<span|<p|<br/) {
             $rv .= "<label for=\"".
                     &quote_escape("${checkname}_${checkvalue}")."\">";
         }
         $rv .= ($cols->[$i] !~ /\S/ ? "<br>" : $cols->[$i]);
-        if ($cols->[$i] !~ /<a\s+href|<input|<select|<textarea/) {
+        if ($cols->[$i] !~ /<a\s+href|<input|<select|<textarea|<span|<p|<br/) {
             $rv .= "</label>";
         }
-        $rv .= "</td>\n";
+        $rv .= "</td>";
     }
-    $rv .= "</tr>\n";
+    $rv .= "</tr>";
     return $rv;
 }
 
@@ -587,10 +569,10 @@ sub theme_ui_nav_link {
     my $alt = $direction eq "left" ? '<-' : '->';
     if ($disabled) {
         return "<img class='ui_nav_link' alt=\"$alt\" align=\"middle\""
-                . "src=\"$gconfig{'webprefix'}/images/$direction-grey.gif?".$NOCACHE."\">\n";
+                . "src=\"$gconfig{'webprefix'}/images/$direction-grey.gif?".$VERSION."\">";
     } else {
         return "<a class='ui_nav_link' href=\"$url\"><img class='ui_nav_link' alt=\"$alt\" align=\"top\""
-        . "src=\"$gconfig{'webprefix'}/images/$direction.gif?".$NOCACHE."\"></a>\n";
+        . "src=\"$gconfig{'webprefix'}/images/$direction.gif?".$VERSION."\"></a>";
     }
 }
 
@@ -616,14 +598,14 @@ sub theme_footer {
             if ($count++ == 0) {
                 print theme_ui_nav_link("left", $url);
             } else {
-                print "&nbsp;|\n";
+                print "&nbsp;|";
             }
-            print "&nbsp;<a href=\"$url\">",&text('main_return', $_[$i+1]),"</a>\n";
+            print "&nbsp;<a href=\"$url\">",&text('main_return', $_[$i+1]),"</a>";
         }
     }
-    print "<br>\n";
+    print "<br>";
     if (!$_[$i]) {
-        print "</body></html>\n";
+        print "</body></html>";
     }
 }
 
@@ -637,50 +619,40 @@ sub theme_ui_hidden_javascript {
 return <<EOF;
 <style type='text/css'>.opener_shown {display:inline}.opener_hidden {display:none}</style>
 <script type='text/javascript'>
-function hidden_opener(divid, openerid)
-{
-var divobj = document.getElementById(divid);
-var openerobj = document.getElementById(openerid);
-if (divobj.className == 'opener_shown') {
-  divobj.className = 'opener_hidden';
-  openerobj.innerHTML = '<img border=0 src=$imgdir/closed.gif>';
-  }
-else {
-  divobj.className = 'opener_shown';
-  openerobj.innerHTML = '<img border=0 src=$imgdir/open.gif>';
-  }
+function hidden_opener(divid, openerid) {
+    var divobj = document.getElementById(divid);
+    var openerobj = document.getElementById(openerid);
+    if (divobj.className == 'opener_shown') {
+        divobj.className = 'opener_hidden';
+        openerobj.innerHTML = '<img border=0 src=$imgdir/closed.gif?$VERSION>';
+    } else {
+        divobj.className = 'opener_shown';
+        openerobj.innerHTML = '<img border=0 src=$imgdir/open.gif?$VERSION>';
+    }
 }
 
-// Show a tab
-function select_tab(name, tabname, form)
-{
-var tabnames = document[name+'_tabnames'];
-var tabtitles = document[name+'_tabtitles'];
-for(var i=0; i<tabnames.length; i++) {
-  var tabobj = document.getElementById('tab_'+tabnames[i]);
-  var divobj = document.getElementById('div_'+tabnames[i]);
-  var title = tabtitles[i];
-  if (tabnames[i] == tabname) {
-    // Selected table
-    tabobj.innerHTML = '<table cellpadding=0 cellspacing=0><tr>'+
-		       '<td class=\\'tabSelected\\' nowrap>'+title+'</td>'+
-		       '</tr></table>';
-    divobj.className = 'opener_shown';
+/* Show a tab */
+function select_tab(name, tabname, form) {
+    var tabnames = document[name+'_tabnames'];
+    var tabtitles = document[name+'_tabtitles'];
+    for(var i=0; i<tabnames.length; i++) {
+        var tabobj = document.getElementById('tab_'+tabnames[i]);
+        var divobj = document.getElementById('div_'+tabnames[i]);
+        var title = tabtitles[i];
+        if (tabnames[i] == tabname) {
+            /* Selected table */
+            tabobj.innerHTML = '<table cellpadding=0 cellspacing=0><tr><td class=\\'tabSelected\\' nowrap>'+title+'</td></tr></table>';
+            divobj.className = 'opener_shown';
+        } else {
+            /* Non-selected tab */
+            tabobj.innerHTML = '<table cellpadding=0 cellspacing=0><tr><td class=\\'tabUnselected\\' nowrap><a href=\\'\\' onClick=\\'return select_tab("'+name+'", "'+tabnames[i]+'")\\'>'+title+'</a></td></tr></table>';
+            divobj.className = 'opener_hidden';
+        }
     }
-  else {
-    // Non-selected tab
-    tabobj.innerHTML = '<table cellpadding=0 cellspacing=0><tr>'+
-		       '<td class=\\'tabUnselected\\' nowrap>'+
-                       '<a href=\\'\\' onClick=\\'return select_tab("'+
-		       name+'", "'+tabnames[i]+'")\\'>'+title+'</a></td>'+
-		       '</tr></table>';
-    divobj.className = 'opener_hidden';
+    if (document.forms[0] && document.forms[0][name]) {
+        document.forms[0][name].value = tabname;
     }
-  }
-if (document.forms[0] && document.forms[0][name]) {
-  document.forms[0][name].value = tabname;
-  }
-return false;
+    return false;
 }
 </script>
 EOF
@@ -713,16 +685,16 @@ sub theme_ui_multi_select {
     }
     $rv .= "<tr class='ui_multi_select_row'>";
     $rv .= "<td style='padding-right:4px;'>".&ui_select($name."_opts", [ ], $leftover,
-            $size, 1, 0, $dis, $wstyle)."</td>\n";
+            $size, 1, 0, $dis, $wstyle)."</td>";
     $rv .= "<td style='padding:0px;'>".&ui_button("&rArr;", $name."_add", $dis,
             "onClick='multi_select_move(\"$name\", form, 1)'")."<br/>".
             &ui_button("&lArr;", $name."_remove", $dis,
-            "onClick='multi_select_move(\"$name\", form, 0)'")."</td>\n";
+            "onClick='multi_select_move(\"$name\", form, 0)'")."</td>";
 
     $rv .= "<td style='padding-left:4px;'>".&ui_select($name."_vals", [ ], $values,
-            $size, 1, 0, $dis, $wstyle)."</td>\n";
-    $rv .= "</tr></table>\n";
-    $rv .= &ui_hidden($name, join("\n", map { $_->[0] } @$values));
+            $size, 1, 0, $dis, $wstyle)."</td>";
+    $rv .= "</tr></table>";
+    $rv .= &ui_hidden($name, join("", map { $_->[0] } @$values));
     return $rv;
 }
 

@@ -7,6 +7,10 @@ use WebminCore;
 &ReadParse();
 &load_theme_library();
 
+%tinfo = &get_theme_info($current_theme);
+$VERSION = ( $tinfo{'version'} ? $tinfo{'version'} : 20121208 );
+$VERSION =~ s/\.//g;
+
 if (&get_product_name() eq "usermin") {
 	$level = 3;
 	}
@@ -21,11 +25,11 @@ foreach $o (split(/\0/, $in{'open'})) {
 	}
 
 &popup_header('right');
-print "<center>\n";
+print "<center>";
 
 # Webmin logo
 if (&get_product_name() eq 'webmin') {
-    print "<img src='$gconfig{'webprefix'}/images/webmin-red.png' border=0 width='320' height='79'>";
+    print "<img src='$gconfig{'webprefix'}/images/webmin-red.png?".$VERSION."' border=0 width='320' height='79'>";
     print "<p/>".&ui_hr();
 }
 
@@ -167,7 +171,7 @@ if ($level == 0) {
 				&text('right_used2',
 				      &nice_size($m[0]*1024),
 				      &nice_size(($m[0]-$m[1])*1024),
-				      &nice_size($m[5]*1024))."<br>\n".
+				      &nice_size($m[5]*1024))."<br>".
 				&bar_chart_three($m[5], $m[1], $m[0]-$m[1],
 						 $m[5]-$m[0]));
 			}
@@ -176,7 +180,7 @@ if ($level == 0) {
 			print &ui_table_row($text{'right_real'},
 				&text('right_used',
 				      &nice_size($m[0]*1024),
-				      &nice_size(($m[0]-$m[1])*1024))."<br>\n".
+				      &nice_size(($m[0]-$m[1])*1024))."<br>".
 				&bar_chart($m[0], $m[0]-$m[1], 1));
 			}
 
@@ -184,7 +188,7 @@ if ($level == 0) {
 			print &ui_table_row($text{'right_virt'},
 				&text('right_used',
 			 	      &nice_size($m[2]*1024),
-				      &nice_size(($m[2]-$m[3])*1024))."<br>\n".
+				      &nice_size(($m[2]-$m[3])*1024))."<br>".
 				&bar_chart($m[2], $m[2]-$m[3], 1));
 			}
 		}
@@ -199,7 +203,7 @@ if ($level == 0) {
 			$disk = "<a href=mount/>$disk</a>";
 			}
 		print &ui_table_row($text{'right_disk'},
-			$disk."<br>\n".
+			$disk."<br>".
 			&bar_chart($total, $total-$free, 1));
 		}
 
@@ -233,7 +237,7 @@ if ($level == 0) {
 	}
 elsif ($level == 3) {
 	# Show Usermin user's information
-	print "<h3>$text{'right_header5'}</h3>\n";
+	print "<h3>$text{'right_header5'}</h3>";
 	print &ui_table_start(undef, undef, 2);
 
 	# Host and login info
@@ -276,14 +280,14 @@ elsif ($level == 3) {
 			print &ui_table_row($text{'right_uquota'},
 				&text('right_out',
 				      &nice_size($usage*$bsize),
-				      &nice_size($quota*$bsize))."<br>\n".
+				      &nice_size($quota*$bsize))."<br>".
 				&bar_chart($quota, $usage, 1));
 			}
 		}
 	print &ui_table_end();
 	}
 
-print "</center>\n";
+print "</center>";
 &popup_footer();
 
 # bar_chart(total, used, blue-rest)
@@ -292,14 +296,14 @@ sub bar_chart
 {
 local ($total, $used, $blue) = @_;
 local $rv;
-$rv .= sprintf "<img src='images/rtwb-red.gif' width='%s' height='10'>",
+$rv .= sprintf "<img src='images/rtwb-red.gif?".$VERSION."' width='%s' height='10'>",
 	int($bar_width*$used/$total)+1;
 if ($blue) {
-	$rv .= sprintf "<img src=images/rtwb-blue.gif width=%s height=10>",
+	$rv .= sprintf "<img src='images/rtwb-blue.gif?".$VERSION."' width=%s height=10>",
 		$bar_width - int($bar_width*$used/$total)-1;
 	}
 else {
-	$rv .= sprintf "<img src=images/white.gif width=%s height=10>",
+	$rv .= sprintf "<img src='images/white.gif?".$VERSION."' width=%s height=10>",
 		$bar_width - int($bar_width*$used/$total)-1;
 	}
 return $rv;
@@ -314,10 +318,10 @@ local $rv;
 local $w1 = int($bar_width*$used1/$total)+1;
 local $w2 = int($bar_width*$used2/$total);
 local $w3 = int($bar_width*$used3/$total);
-$rv .= sprintf "<img src=images/rtwb-red.gif width=%s height=10>", $w1;
-$rv .= sprintf "<img src=images/rtwb-purple.gif width=%s height=10>", $w2;
-$rv .= sprintf "<img src=images/rtwb-blue.gif width=%s height=10>", $w3;
-$rv .= sprintf "<img src=images/grey.gif width=%s height=10>",
+$rv .= sprintf "<img src='images/rtwb-red.gif?".$VERSION."' width=%s height=10>", $w1;
+$rv .= sprintf "<img src='images/rtwb-purple.gif?".$VERSION."' width=%s height=10>", $w2;
+$rv .= sprintf "<img src='images/rtwb-blue.gif?".$VERSION."' width=%s height=10>", $w3;
+$rv .= sprintf "<img src='images/grey.gif?".$VERSION."' width=%s height=10>",
 	$bar_width - $w1 - $w2 - $w3;
 return $rv;
 }

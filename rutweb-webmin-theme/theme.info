@@ -1,7 +1,6 @@
-usermin=1
+usermin=0
 webmin=1
-virtualmin=1
-version=1.660
-longdesc=Enhanced version of Gray Framed + XenLayer Webmin theme + additional function for navigation
+version=1312b
+longdesc=Enhanced version of Gray Framed
 desc=Rutweb Enhanced Theme
-depends=1.660
+depends=1.663

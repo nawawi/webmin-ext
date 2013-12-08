@@ -298,6 +298,9 @@ input[type=button] {
     padding: 0 8px;
     margin-bottom: 3px;
     vertical-align: middle;
+    cursor: default;
+    background-color: #dedcdc;
+    border: 1px solid #cfcccc;
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
     border-radius: 2px;
@@ -309,9 +312,8 @@ input[type=button] {
     -webkit-user-select: none;
     -moz-user-select: none;
     user-select: none;
-    cursor: default;
-    background-color: #dedcdc;
-    border: 1px solid #cfcccc;
+    -webkit-appearance:none;
+    -moz-appearance: none;
 }
 
 *+html .ui_submit, .ui_reset, input[type=submit], input[type=reset] {
@@ -381,5 +383,10 @@ ui_radio, input[type=radio] {
 .ui_nav_link {
     float: left;
 }
+
+span.ui_data {
+    vertical-align: middle;
+}
+
 .placeholder { color: #aaa; }
 
